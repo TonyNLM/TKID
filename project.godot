@@ -1,0 +1,78 @@
+; Engine configuration file.
+; It's best edited using the editor UI and not directly,
+; since the parameters that go here are not all obvious.
+;
+; Format:
+;   [section] ; section goes between []
+;   param=value ; assign values to parameters
+
+config_version=4
+
+_global_script_classes=[ {
+"base": "Node2D",
+"class": "Action",
+"language": "GDScript",
+"path": "res://actions/Action.gd"
+}, {
+"base": "Tile",
+"class": "Castle",
+"language": "GDScript",
+"path": "res://tiles/Castle.gd"
+}, {
+"base": "Node2D",
+"class": "Piece",
+"language": "GDScript",
+"path": "res://player/Piece.gd"
+}, {
+"base": "Node",
+"class": "Player",
+"language": "GDScript",
+"path": "res://player/Player.gd"
+}, {
+"base": "Area2D",
+"class": "Tile",
+"language": "GDScript",
+"path": "res://tiles/Tile.gd"
+} ]
+_global_script_class_icons={
+"Action": "",
+"Castle": "",
+"Piece": "",
+"Player": "",
+"Tile": ""
+}
+
+[application]
+
+config/name="TKID"
+run/main_scene="res://network/lobby.tscn"
+config/icon="res://icon.png"
+
+[autoload]
+
+global="*res://common/Global.gd"
+gamestate="*res://network/gamestate.gd"
+
+[display]
+
+window/size/width=1280
+window/size/height=720
+window/stretch/mode="viewport"
+window/stretch/aspect="keep"
+
+[gui]
+
+common/drop_mouse_on_gui_input_disabled=true
+
+[network]
+
+limits/debugger_stdout/max_chars_per_second=262144
+
+[physics]
+
+common/enable_pause_aware_picking=true
+
+[rendering]
+
+environment/default_clear_color=Color( 0.301961, 0.301961, 0.301961, 1 )
+environment/default_environment="res://default_env.tres"

@@ -1,0 +1,13 @@
+[remap]
+
+importer="image"
+type="Image"
+path="res://.import/white_knight.png-23fb877e246fd275b2d538ad147f31e3.image"
+
+[deps]
+
+source_file="res://player/white_knight.png"
+dest_files=[ "res://.import/white_knight.png-23fb877e246fd275b2d538ad147f31e3.image" ]
+
+[params]
+

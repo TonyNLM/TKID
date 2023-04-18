@@ -1,0 +1,14 @@
+[gd_scene load_steps=3 format=2]
+
+[ext_resource path="res://actions/HUD.tscn" type="PackedScene" id=1]
+[ext_resource path="res://actions/Action.gd" type="Script" id=2]
+
+[node name="Action" type="Node2D"]
+script = ExtResource( 2 )
+
+[node name="CD" type="Timer" parent="."]
+one_shot = true
+
+[node name="HUD" parent="." instance=ExtResource( 1 )]
+
+[connection signal="timeout" from="CD" to="." method="_on_CD_timeout"]

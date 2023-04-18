@@ -1,0 +1,13 @@
+[remap]
+
+importer="image"
+type="Image"
+path="res://.import/black_king.png-8d570ba7eedf36657d23e0c0f09cff3a.image"
+
+[deps]
+
+source_file="res://player/black_king.png"
+dest_files=[ "res://.import/black_king.png-8d570ba7eedf36657d23e0c0f09cff3a.image" ]
+
+[params]
+

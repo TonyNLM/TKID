@@ -1,0 +1,13 @@
+[remap]
+
+importer="image"
+type="Image"
+path="res://.import/white_bishop.png-a1ef938bda5d74f691a689990d6210c4.image"
+
+[deps]
+
+source_file="res://player/white_bishop.png"
+dest_files=[ "res://.import/white_bishop.png-a1ef938bda5d74f691a689990d6210c4.image" ]
+
+[params]
+

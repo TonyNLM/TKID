@@ -1,0 +1,13 @@
+[remap]
+
+importer="image"
+type="Image"
+path="res://.import/black_knight.png-ec91001c220be61f3875684f2c13daea.image"
+
+[deps]
+
+source_file="res://player/black_knight.png"
+dest_files=[ "res://.import/black_knight.png-ec91001c220be61f3875684f2c13daea.image" ]
+
+[params]
+

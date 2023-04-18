@@ -1,0 +1,13 @@
+[remap]
+
+importer="image"
+type="Image"
+path="res://.import/boot.png-321718287901d3e700a2cd9832e7e77f.image"
+
+[deps]
+
+source_file="res://icons/boot.png"
+dest_files=[ "res://.import/boot.png-321718287901d3e700a2cd9832e7e77f.image" ]
+
+[params]
+

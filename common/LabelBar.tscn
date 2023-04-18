@@ -1,0 +1,22 @@
+[gd_scene format=2]
+
+[node name="LabelBar" type="Node2D"]
+
+[node name="HBoxContainer" type="HBoxContainer" parent="."]
+margin_right = 143.0
+margin_bottom = 14.0
+
+[node name="Label" type="Label" parent="HBoxContainer"]
+margin_right = 46.0
+margin_bottom = 14.0
+size_flags_horizontal = 0
+size_flags_vertical = 0
+text = "Default"
+
+[node name="ProgressBar" type="ProgressBar" parent="HBoxContainer"]
+margin_left = 50.0
+margin_right = 143.0
+margin_bottom = 14.0
+size_flags_horizontal = 3
+value = 50.0
+allow_greater = true

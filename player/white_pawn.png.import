@@ -1,0 +1,13 @@
+[remap]
+
+importer="image"
+type="Image"
+path="res://.import/white_pawn.png-76832cff3af92cb6d41cd801822734a6.image"
+
+[deps]
+
+source_file="res://player/white_pawn.png"
+dest_files=[ "res://.import/white_pawn.png-76832cff3af92cb6d41cd801822734a6.image" ]
+
+[params]
+

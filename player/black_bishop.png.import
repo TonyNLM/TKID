@@ -1,0 +1,13 @@
+[remap]
+
+importer="image"
+type="Image"
+path="res://.import/black_bishop.png-c16beeb002e70fb97fa42563da976603.image"
+
+[deps]
+
+source_file="res://player/black_bishop.png"
+dest_files=[ "res://.import/black_bishop.png-c16beeb002e70fb97fa42563da976603.image" ]
+
+[params]
+

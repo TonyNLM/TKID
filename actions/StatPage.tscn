@@ -1,0 +1,103 @@
+[gd_scene load_steps=5 format=2]
+
+[ext_resource path="res://actions/ActionText.tres" type="DynamicFont" id=1]
+[ext_resource path="res://actions/font.tres" type="DynamicFont" id=2]
+
+[sub_resource type="DynamicFontData" id=1]
+antialiased = false
+font_path = "res://actions/ARCADECLASSIC.TTF"
+
+[sub_resource type="DynamicFont" id=2]
+use_mipmaps = true
+font_data = SubResource( 1 )
+
+[node name="StatPage" type="Node2D"]
+
+[node name="ColorRect" type="ColorRect" parent="."]
+margin_right = 60.0
+margin_bottom = 80.0
+size_flags_horizontal = 3
+size_flags_vertical = 3
+color = Color( 0.705882, 0.392157, 0.196078, 0.705882 )
+
+[node name="VBox" type="VBoxContainer" parent="ColorRect"]
+margin_right = 60.0
+margin_bottom = 80.0
+size_flags_horizontal = 3
+size_flags_vertical = 3
+
+[node name="Name" type="Label" parent="ColorRect/VBox"]
+margin_right = 60.0
+margin_bottom = 16.0
+custom_fonts/font = ExtResource( 1 )
+text = "Pawn"
+align = 1
+valign = 1
+
+[node name="Line2D" type="Line2D" parent="ColorRect/VBox"]
+points = PoolVector2Array( 0, 15, 60, 15 )
+width = 1.0
+default_color = Color( 1, 1, 1, 1 )
+
+[node name="Grid" type="GridContainer" parent="ColorRect/VBox"]
+margin_top = 20.0
+margin_right = 60.0
+margin_bottom = 80.0
+size_flags_horizontal = 3
+size_flags_vertical = 3
+columns = 2
+
+[node name="ATK" type="Label" parent="ColorRect/VBox/Grid"]
+margin_right = 38.0
+margin_bottom = 18.0
+size_flags_horizontal = 3
+size_flags_vertical = 3
+custom_colors/font_color = Color( 0.768627, 0, 0, 1 )
+custom_fonts/font = SubResource( 2 )
+text = "ATK"
+
+[node name="ATK2" type="Label" parent="ColorRect/VBox/Grid"]
+margin_left = 42.0
+margin_right = 60.0
+margin_bottom = 18.0
+size_flags_vertical = 1
+custom_fonts/font = SubResource( 2 )
+text = "50"
+
+[node name="SPD" type="Label" parent="ColorRect/VBox/Grid"]
+margin_top = 22.0
+margin_right = 38.0
+margin_bottom = 39.0
+size_flags_horizontal = 3
+size_flags_vertical = 3
+custom_colors/font_color = Color( 0.192157, 0.878431, 0, 1 )
+custom_fonts/font = ExtResource( 2 )
+text = "SPD"
+
+[node name="SPD2" type="Label" parent="ColorRect/VBox/Grid"]
+margin_left = 42.0
+margin_top = 22.0
+margin_right = 60.0
+margin_bottom = 39.0
+size_flags_vertical = 1
+custom_fonts/font = SubResource( 2 )
+text = "50"
+
+[node name="MAG" type="Label" parent="ColorRect/VBox/Grid"]
+margin_top = 43.0
+margin_right = 38.0
+margin_bottom = 60.0
+size_flags_horizontal = 3
+size_flags_vertical = 3
+custom_colors/font_color = Color( 0.0980392, 0.109804, 1, 1 )
+custom_fonts/font = SubResource( 2 )
+text = "MAG"
+
+[node name="MAG2" type="Label" parent="ColorRect/VBox/Grid"]
+margin_left = 42.0
+margin_top = 43.0
+margin_right = 60.0
+margin_bottom = 60.0
+size_flags_vertical = 1
+custom_fonts/font = SubResource( 2 )
+text = "50"

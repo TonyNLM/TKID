@@ -1,0 +1,13 @@
+[remap]
+
+importer="image"
+type="Image"
+path="res://.import/black_rook.png-4b07dd1e6c9b55a3048eae47a01c3158.image"
+
+[deps]
+
+source_file="res://player/black_rook.png"
+dest_files=[ "res://.import/black_rook.png-4b07dd1e6c9b55a3048eae47a01c3158.image" ]
+
+[params]
+
