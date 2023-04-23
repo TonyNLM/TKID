@@ -19,8 +19,10 @@ func update_text():
 	if piece != null:
 		$ColorRect/VBox/Name.text = piece.type
 		$ColorRect/VBox/Grid/ATK2.text = piece.get_attack()
-		$ColorRect/VBox/Grid/MAG2.text = piece.get
+		$ColorRect/VBox/Grid/MAG2.text = piece.get_magic()
+		$ColorRect/VBox/Grid/SPD2.text = piece.get_speed()
 
-# Called every frame. 'delta' is the elapsed time since the previous frame.
-#func _process(delta):
-#	pass
+func setstats(atk,mag,spd):
+	$ColorRect/VBox/Grid/ATK2.text = atk
+	$ColorRect/VBox/Grid/MAG2.text = mag
+	$ColorRect/VBox/Grid/SPD2.text = spd

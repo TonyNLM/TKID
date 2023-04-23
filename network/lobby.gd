@@ -8,16 +8,14 @@ func _ready():
 	gamestate.connect("player_list_changed", self, "refresh_lobby")
 	gamestate.connect("game_ended", self, "_on_game_ended")
 	gamestate.connect("game_error", self, "_on_game_error")
-	# Set the player name according to the system username. Fallback to the path.
-	if OS.has_environment("USERNAME"):
-		$Connect/Name.text = OS.get_environment("USERNAME")
-	else:
-		$Connect/Name.text = "Sir Knight"
+
+
+	$Connect/Name.text = "Sir Knight"
 
 
 func _on_host_pressed():
 	if $Connect/Name.text == "":
-		$Connect/ErrorLabel.text = "Invalid name!"
+		$Connect/ErrorLabel.text = "Invalid name"
 		return
 
 	$Connect.hide()
@@ -31,12 +29,12 @@ func _on_host_pressed():
 
 func _on_join_pressed():
 	if $Connect/Name.text == "":
-		$Connect/ErrorLabel.text = "Invalid name!"
+		$Connect/ErrorLabel.text = "Invalid name"
 		return
 
 	var ip = $Connect/IPAddress.text
 	if not ip.is_valid_ip_address():
-		$Connect/ErrorLabel.text = "Invalid IP address!"
+		$Connect/ErrorLabel.text = "Invalid IP address"
 		return
 
 	$Connect/ErrorLabel.text = ""

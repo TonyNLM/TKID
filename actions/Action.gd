@@ -6,11 +6,12 @@ var possible_targets = [Vector2(1,0),Vector2(0,1),Vector2(-1,0),Vector2(0,-1)]
 var penalty: float = 0.17
 
 
-var base_cooldown: float = 15
-func enter_cooldown(speed:int, mult:float=1):
-	var speedmult = 1
+var base_cooldown: float = 15.0
+func enter_cooldown(speed:int, mult:float=1.0):
+	var ah = (speed-50)/100.0
+	var speedmult = 1.0/ (ah+1)
 	if speed < 30: 
-		mult = 1.1
+		speedmult = 1.25
 	$CD.start(mult * base_cooldown * speedmult)
 	$HUD.disable()
 	
@@ -26,18 +27,18 @@ func settext(t):
 	$HUD/EffectPage/VBox/ActionText.setup()
 
 
-func setup(tarfunc, actfunc, name="Move", text="Move (knight)", text_kws = {},penalty=0.17):
+func setup(tarfunc, actfunc, name="Move", text="Move (knight)", text_kws = {}):
 	$HUD/EffectPage.setup(name, text, text_kws)
 	
 	get_possible_targets = tarfunc
 	action_func = actfunc
-	penalty = penalty
 
 func setowner():
 	piece = get_parent()
 	$HUD/EffectPage/VBox/ActionText.setowner(piece)
+	self.connect("action_clicked", global.get_map(), "action_clicked")
 	
-var piece
+var piece = null
 
 func get_coord()->Vector2:
 	return piece.coordinate
@@ -48,11 +49,7 @@ func calculate_values()->Dictionary:
 #get targets(coord)
 var get_possible_targets: FuncRef
 #specific tile, takeeffect(self, dest)
-var action_func: FuncRef
-
-func takeeffect(dest:Vector2):
-	#print("take effect: ", dest)
-	action_func.call_func(self, dest)
+var action_func: String
 
 signal action_clicked(action)
 func on_Button_clicked():
@@ -61,3 +58,20 @@ func on_Button_clicked():
 
 func seticon(icon):
 	$HUD/Button.texture_normal = icon
+
+
+var oneshot := false
+
+remotesync func buy(coord:Vector2):
+	var p = global.get_map().get_piece(coord)
+	get_parent().remove_child(self)
+	p.add_child(self)
+	setowner()
+	
+	emit_signal("action_clicked",self)
+
+
+
+
+
+

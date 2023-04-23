@@ -38,6 +38,7 @@ var black_queen = loadimagetexture("res://player/black_queen.png")
 
 var swordicon = preload("res://icons/swordicon.tres")
 var booticon = preload("res://icons/booticon.tres")
+var healicon = preload("res://icons/healicon.tres")
 
 func loadimagetexture(path, size = Vector2(24,24)):
 	var t = ImageTexture.new()
@@ -47,18 +48,37 @@ func loadimagetexture(path, size = Vector2(24,24)):
 
 func _ready():
 	pass
-
-
-var action = preload("res://actions/Action.tscn")
+	
+var action_scene = preload("res://actions/Action.tscn")
 func new_action() -> Action:
-	return action.instance()
-	
-
-func new_knight_move():
-	var a:Action= new_action()
-	a.possible_targets = [Vector2(2,1),Vector2(2,-1), Vector2(-2,-1),Vector2(-2,1), Vector2(2,-1),\
-		Vector2(1,-2),Vector2(1,2), Vector2(-1,-2),Vector2(-1,2)]
-	a.affected_range = [[Vector2(0,0)]]
-	
+	var a = action_scene.instance()
+	#a.connect("action_clicked",get_map(),"action_clicked")
 	return a
+	
+func new_bishop_skill() -> Action:
+	var a := new_action()
+	a.setup(get_map().self_adj, "heal", "Heal", "Heal <heal_p> to Pieces and <heal_l> to land in 8 adj tiles",
+	 {"heal_p":"25+1.5*MAG", "heal_l":"(25+1.5*MAG)/HLTH"})
+	a.penalty = 0.2
+	a.base_cooldown = 20
+	a.seticon(healicon)
+	return a
+var new_bishop_skill = funcref(self, "new_bishop_skill")
+func new_knight_skill() -> Action:
+	var a := new_action()
+	a.setup(get_map().knight_move, "move_snipe", "Quick Attack", "Move and then deal <dmg> damage to adjacent tiles",
+		{"dmg":"10+0.6*ATK"})
+	a.base_cooldown = 20
+	a.seticon(booticon)
+	return a
+var new_knight_skill = funcref(self,"new_knight_skill")
+func new_rook_skill() -> Action:
+	var a := new_action()
+	a.setup(get_map().adj_3_tiles, "attack", "Slash", "Deal <dmg> Damage to 3 tiles in 1 direction",{"dmg":"50+0.5*ATK"})
+	a.penalty = 0.23
+	a.base_cooldown = 25
+	a.seticon(swordicon)
+	return a
+var new_rook_skill = funcref(self,"new_rook_skill")
+
 

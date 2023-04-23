@@ -7,11 +7,13 @@ signal fully_scorched(coord)
 signal healed(coord)
 
 func scorch(amount):
+	if amount<=0: return
+	if type!="Floor": return
 	damage += amount * pow(1.1,chain)
 	print("tile scorched: ",amount * pow(1.1,chain), " damage=",damage)
 	chain += 1
 	$Floor.modulate = global.WHITE*(1-damage) + global.DAMAGE_RED*damage
-	if damage >= 1:
+	if is_scorched():
 		timeout()
 		emit_signal("fully_scorched", coord)
 
@@ -19,8 +21,11 @@ func is_scorched()->bool:
 	return damage>=1
 
 func heal(amount):
-	print("tile healed", amount)
+	if amount>0: print("tile healed", amount)
 	damage -= amount
+	if damage<0: damage=0
+	$Floor.modulate = global.WHITE*(1-damage) + global.DAMAGE_RED*damage
+	reset_chain()
 
 func reset_chain():
 	chain = 0
@@ -31,10 +36,9 @@ func timeout():
 
 func endtimeout():
 	$Heal.start()
-	reset_chain()
 
 func _on_Heal_timeout():
-	damage = damage*0.8
+	heal(damage*0.2)
 
 # Called when the node enters the scene tree for the first time.
 func _ready():
@@ -73,10 +77,16 @@ var can_travel:bool = true
 
 func highlight_off():
 	$highlight.visible = false
+	$LabelBar.hide()
 func highlight_on(color=null):
 	if color!=null:
 		$highlight.color = color
+	else:
+		$highlight.color = global.HIGHLIGHT_YELLOW
+		$LabelBar.show()
+		$LabelBar.set_value(damage)
 	$highlight.visible = true
+
 
 """
 func _unhandled_input(event):

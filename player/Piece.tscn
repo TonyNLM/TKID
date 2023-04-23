@@ -46,10 +46,9 @@ z_index = 1
 
 [node name="BaseMove" parent="." instance=ExtResource( 2 )]
 position = Vector2( 30, 0 )
-z_index = 1
 
 [node name="BaseAttack" parent="." instance=ExtResource( 2 )]
-position = Vector2( 0, -25 )
+position = Vector2( 0, -30 )
 
 [node name="StepTimer" type="Timer" parent="."]
 wait_time = 0.25
@@ -57,5 +56,4 @@ wait_time = 0.25
 [node name="ScorchTimer" type="Timer" parent="."]
 wait_time = 1.5
 
-[connection signal="timeout" from="StepTimer" to="." method="carry_out_step"]
 [connection signal="timeout" from="ScorchTimer" to="." method="scorch"]

@@ -14,12 +14,12 @@ signal game_error(what)
 const DEFAULT_PORT = 10567
 
 # Max number of players.
-const MAX_PEERS = 12
+const MAX_PEERS = 2
 
 var peer = null
 
 # Name for my player.
-var player_name = "The Warrior"
+var player_name = "Sir Knight"
 
 # Names for remote players in id:name format.
 var players = {}
@@ -83,42 +83,30 @@ func unregister_player(id):
 	emit_signal("player_list_changed")
 
 
-remote func pre_start_game(spawn_points):
+remote func pre_start_game(mapseed):
 	# Change scene.
-	var world = load("res://world.tscn").instance()
-	get_tree().get_root().add_child(world)
+	var mapscene = load("res://Map.tscn").instance()
+	get_tree().get_root().add_child(mapscene)
+
+	#TODO: load generate and load map
+	global.get_map().load_map("res://map"+mapseed+".txt")
+	#DEBUG
+	global.get_map().demo()
 
 	get_tree().get_root().get_node("Lobby").hide()
+	
+	global.get_map().get_node("PlayerRed").set_network_master(1) #set unique id as master.
+	global.get_map().get_node("PlayerBlue").set_network_master(2) #set unique id as master.
 
-	var player_scene = load("res://player.tscn")
-
-	for p_id in spawn_points:
-		var spawn_pos = world.get_node("SpawnPoints/" + str(spawn_points[p_id])).position
-		var player = player_scene.instance()
-
-		player.set_name(str(p_id)) # Use unique ID as node name.
-		player.position=spawn_pos
-		player.set_network_master(p_id) #set unique id as master.
-
-		if p_id == get_tree().get_network_unique_id():
-			# If node for this peer id, set name.
-			player.set_player_name(player_name)
-		else:
-			# Otherwise set name from peer.
-			player.set_player_name(players[p_id])
-
-		world.get_node("Players").add_child(player)
-
-	# Set up score.
-	world.get_node("Score").add_player(get_tree().get_network_unique_id(), player_name)
-	for pn in players:
-		world.get_node("Score").add_player(pn, players[pn])
 
 	if not get_tree().is_network_server():
 		# Tell server we are ready to start.
-		rpc_id(1, "ready_to_start", get_tree().get_network_unique_id())
-	elif players.size() == 0:
-		post_start_game()
+		global.get_map().active_player = global.get_map().get_node("PlayerBlue")
+		rpc_id(1, "ready_to_start", get_tree().get_network_unique_id())	
+	else:
+		global.get_map().active_player = global.get_map().get_node("PlayerRed")		
+		if players.size() == 0:
+			post_start_game()
 
 
 remote func post_start_game():
@@ -162,24 +150,19 @@ func get_player_name():
 func begin_game():
 	assert(get_tree().is_network_server())
 
-	# Create a dictionary with peer id and respective spawn points, could be improved by randomizing.
-	var spawn_points = {}
-	spawn_points[1] = 0 # Server in spawn point 0.
-	var spawn_point_idx = 1
-	for p in players:
-		spawn_points[p] = spawn_point_idx
-		spawn_point_idx += 1
-	# Call to pre-start game with the spawn points.
-	for p in players:
-		rpc_id(p, "pre_start_game", spawn_points)
+	#TODO: generate map and save in file
+	var mapseed = ""
 
-	pre_start_game(spawn_points)
+	for p in players:
+		rpc_id(p, "pre_start_game", mapseed)
+
+	pre_start_game(mapseed)
 
 
 func end_game():
-	if has_node("/root/World"): # Game is in progress.
+	if has_node("/root/Map"): # Game is in progress.
 		# End it
-		get_node("/root/World").queue_free()
+		get_node("/root/Map").queue_free()
 
 	emit_signal("game_ended")
 	players.clear()

@@ -26,6 +26,7 @@ margin_left = 2.5
 margin_top = 2.5
 margin_right = 22.5
 margin_bottom = 22.5
+mouse_filter = 1
 shortcut_in_tooltip = false
 texture_normal = ExtResource( 1 )
 

@@ -32,3 +32,8 @@ func disable():
 func enable():
 	$Button.disabled = false
 	$Button.modulate = Color(1,1,1,1)
+
+func setstats(atk, mag, spd):
+	$StatPage.setstatats(atk,mag,spd)
+
+

@@ -13,20 +13,22 @@ var added_speed:int
 var added_magic:int
 
 func get_attack() -> int:
-	var mult = 1.0; if type in ["Rook","Queen"]: mult = 1.25
+	var mult = attack_mult[type]
 	return int((attack+added_attack)*mult)
 func get_magic()->int:
-	var mult = 1.0; if type in ["Bishop","Queen"]: mult = 1.25
+	var mult = magic_mult[type]
 	return int((magic+added_magic)*mult)
 func get_speed()->int:
-	var mult = 1.0; if type in ["Knight","Queen"]: mult = 1.25
+	var mult = speed_mult[type]
 	return int((speed+added_speed)*mult)
 func get_max_health()->int:
 	return int(health_mult[type] * get_magic())
 
 var type := "Pawn"
 var health_mult = {"Pawn":10, "Knight":15, "Rook":20, "Bishop":5, "Queen":25}
-
+var attack_mult = {"Pawn":1, "Knight":0.85, "Rook":1.15, "Bishop":0.85, "Queen":1.25}
+var speed_mult = {"Pawn":1, "Knight":1.15, "Rook":0.85, "Bishop":0.85, "Queen":1.25}
+var magic_mult = {"Pawn":1, "Knight":0.85, "Rook":0.85, "Bishop":1.15, "Queen":1.25}
 
 var coordinate:Vector2
 
@@ -48,16 +50,19 @@ func check_evolve():
 			$BaseMove.get_possible_targets = global.get_map().rook_move
 			$BaseMove.settext("Move (rook)")
 			$StatPage/ColorRect/VBox/Name.text = "Rook"
+			class_skill = global.new_rook_skill()
 		elif mag>=125 and atk <=75 and spd<=75:
 			type = "Bishop"
 			$Area2D/Sprite.texture = global.black_bishop if player.color == "red" else global.white_bishop
 			$BaseMove.get_possible_targets = global.get_map().bishop_move
 			$BaseMove.settext("Move (bishop)")
 			$StatPage/ColorRect/VBox/Name.text = "Bishop"
+			class_skill = global.new_bishop_skill()
 		elif spd>=125 and mag <=75 and atk<=75:
 			type = "Knight"
 			$Area2D/Sprite.texture = global.black_knight if player.color == "red" else global.white_knight
 			$StatPage/ColorRect/VBox/Name.text = "Knight"
+			class_skill = global.new_knight_skill()
 		elif spd>=250 and mag>=250 and atk>=250:
 			type = "Queen"
 			$Area2D/Sprite.texture = global.black_queen if player.color == "red" else global.white_queen
@@ -68,9 +73,13 @@ func check_evolve():
 		
 		#heal to same percentage
 		if type != "Pawn":
-			print(type, health, old_health, get_max_health())
 			health = int(float(health)/old_health*get_max_health())
 			update_bar()
+			all_skills.append(class_skill)
+			add_child(class_skill)
+			class_skill.setowner()
+			class_skill.position = Vector2(-30,0)
+			class_skill.hide()
 	
 func _ready():
 	#create piece, do all random here
@@ -126,7 +135,6 @@ func kill():
 	if player!=null:
 		pass #gain gold back
 	emit_signal("piece_killed", coordinate)
-	self.queue_free()
 
 var scorch_chain:=0
 func clear_scorch():

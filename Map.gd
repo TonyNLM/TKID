@@ -6,6 +6,14 @@ var map_size = Vector2(32,30)
 var tiles: Array = []
 var occupied: Array = []
 
+var active_player = null
+func set_active_player(color):
+	active_player = players[color]
+
+var all_pieces:={"red":[],"blue":[]}
+
+
+
 var tilescene = preload("res://tiles/Tile.tscn")
 func add_tile(x,y,type):
 	tiles[x][y] = tilescene.instance()
@@ -29,12 +37,13 @@ func add_piece(x,y, color="blue"):
 	p.connect("piece_killed",self,"on_piece_killed")
 	
 	#action shit
-	p.base_move.setup(knight_move, move_piece)
+	p.base_move.setup(knight_move, "move_piece")
 	p.base_move.penalty = 0.05
 	p.base_move.connect("action_clicked", self, "action_clicked")
 	p.base_move.seticon(global.booticon)
 	
-	p.base_attack.setup(get_dist1,attack_mine,"Attack","Deal <dmg> Damage to a tile within range 1",{"dmg":"30+0.5*ATK"})
+	p.base_attack.setup(get_dist1,"attack_mine","Attack/Mine",
+		"Deal <dmg> Damage /Mine <dmg> to a tile within range 1",{"dmg":"30+0.5*ATK"})
 	p.base_attack.connect("action_clicked",self,"action_clicked")
 	p.base_attack.seticon(global.swordicon)
 
@@ -43,6 +52,8 @@ func add_piece(x,y, color="blue"):
 		
 	p.player = players[color]
 	p.check_evolve()
+	
+	all_pieces[color].append(p)
 	
 var castlescene = preload("res://tiles/Castle.tscn")
 func add_castle(x,y,color="blue"):
@@ -85,8 +96,12 @@ func _ready():
 	$PlayerRed.color = "red"; $PlayerBlue.color = "blue"
 	$PlayerRed.player_name = "Red"; $PlayerBlue.player_name = "Blue"
 	
-	load_map()
-		
+	#load_map()
+	#demo()
+	
+	
+	
+func demo():
 	add_piece(6,6,"red")
 	add_piece(23,23)
 
@@ -116,9 +131,11 @@ func _ready():
 	get_piece(Vector2(22,23)).speed = 125
 	get_piece(Vector2(22,23)).check_evolve()
 
-func load_map():
+
+
+func load_map(path = "res://map.txt"):
 	var file = File.new()
-	file.open("res://map.txt", file.READ)
+	file.open(path, file.READ)
 	var y = 0
 	var x = 0
 	while not file.eof_reached():
@@ -149,7 +166,7 @@ func is_floor(coord:Vector2)->bool:
 func is_occupied(coord:Vector2)->bool:
 	return get_piece(coord)!=null
 func in_bounds(coord:Vector2)->bool:
-	return coord>=Vector2(0,0) && coord < map_size
+	return coord.x>=0 and coord.y>=0 && coord.x < map_size.x and coord.y< map_size.y
 
 func get_tile(coord:Vector2) -> Tile:
 	return tiles[coord.x][coord.y]
@@ -176,17 +193,29 @@ func _unhandled_input(event):
 var selected_coordinates: Dictionary
 var selected_action:Action = null
 var selected_origin: Vector2
+var selected_shopitem = null
+
+func reset_selection():
+	selected_action = null
+	selected_coordinates = {}
+	selected_shopitem = null
 
 func tile_clicked(coord:Vector2):
 	#print("tile clicked entered")
 
 	if selected_action == null:
-		#not a target selection
-		get_tile(coord).highlight_on(global.HIGHLIGHT_YELLOW)
-		if get_piece(coord) != null:
-			get_piece(coord).highlight_on()
+		if selected_shopitem == null:
+			#not a target selection, highlight only
+			get_tile(coord).highlight_on()
+			if get_piece(coord) != null:
+				if get_piece(coord).player.color==active_player.color:
+					get_piece(coord).highlight_on()
+					selected_origin = coord
+		else:
+			#bought from shop successfully
 			selected_origin = coord
-#			print("tile cilcked: piece clicked: ",selected_origin)
+			selected_shopitem.buy(coord)
+			
 	else:
 		#carry out action
 		var piece = get_piece(selected_origin)
@@ -194,16 +223,18 @@ func tile_clicked(coord:Vector2):
 			var queue:Array = selected_coordinates[coord]
 			
 			for target in queue:
-				selected_action.takeeffect(target)
+				rpc(selected_action.action_func, selected_action, target)
+				#selected_action.takeeffect(target)
 			scorch_land(selected_origin, selected_action.penalty)
 			
+			if selected_action.oneshot: selected_action.queue_free()
 			#DEBUG: no cd
 			#selected_action.enter_cooldown(piece.speed)
 			
-		selected_action = null
+		reset_selection()
 
 func action_clicked(action: Action):
-	selected_coordinates = {}
+	reset_selection()
 	var res = action.get_possible_targets.call_func(selected_origin)
 	var dests:Array = res[0]; var dest_targets = res[1]
 
@@ -216,10 +247,27 @@ func action_clicked(action: Action):
 				get_tile(target).highlight_on(global.HIGHLIGHT_YELLOW)
 		
 		for dest in dests:
+			print(dest)
 			get_tile(dest).highlight_on(global.HIGHLIGHT_BLUE)
-
 		
 		selected_action = action
+
+func shopitem_clicked(shopitem):
+	#print("shopitem clicked")
+	reset_selection()
+	if active_player.gold < shopitem.cost: return
+	
+	selected_shopitem = shopitem
+	if shopitem.child is Piece:
+		print("piece")
+	if shopitem.child is Action:
+		shopitem.child.oneshot = true
+		for p in all_pieces[active_player.color]:
+			selected_coordinates[p.coordinate] = null
+		for coord in selected_coordinates:
+			get_tile(coord).highlight_on(global.HIGHLIGHT_BLUE)
+		
+		
 
 func on_tile_scorched(coord:Vector2):
 	var p = get_piece(coord)
@@ -230,97 +278,156 @@ func on_tile_healed(coord:Vector2):
 	pass
 
 func on_piece_killed(coord:Vector2):
+	var p := get_piece(coord)
 	occupied[coord.x][coord.y] = null
+	all_pieces[p.player.color].erase(p)
+	p.queue_free()
 
 
-#reset everything, new game
-func reset_all():
-	pass
-
-var move_piece = funcref(self,"move_piece")
-func move_piece(action:Action, dest):
+remotesync func move_piece(action:Action, dest):
 	var origin = action.get_coord()
 	var penalty = action.penalty
+	
 	var p := get_piece(origin)
-
+	if p==null: return
+	
 	if !get_tile(dest).is_scorched():
 		p.clear_scorch()
-	
-	if p!=null and can_travel(dest):
+		
+	if can_travel(dest):
 		occupied[origin.x][origin.y] = null
 		occupied[dest.x][dest.y] = p
 		
 		p.coordinate = dest
 		p.position = dest*cell_size
-		
-		if get_tile(dest).is_scorched():
-			p.scorch()
+	
+		scorch_land(dest, penalty)
 
-func damage_land(dest, amount):
+remotesync func damage_land(dest, amount):
 	var porc = can_damage(dest)
 	porc.damage(amount)	
 	
-func scorch_land(dest, amount):
+remotesync func scorch_land(dest, amount):
 	get_tile(dest).scorch(amount)
 	
-func damage_scorch(dest, damage, scorch):
+remotesync func damage_scorch(dest, damage, scorch):
 	damage_land(dest, damage)
 	scorch_land(dest,scorch)
 
-func mine_land(piece:Piece, dest, amount, scorch):
+remotesync func mine_land(piece:Piece, dest, amount, scorch):
 	scorch_land(dest,scorch)
 	if next_to_mine(dest):
-		amount = amount*1.6
+		amount = amount*1.3
 	piece.gain_gold(amount)
 
-var attack_mine = funcref(self, "attack_mine")
-func attack_mine(action:Action, dest):
+remotesync func attack_mine(action:Action, dest):
 	var dmg = action.calculate_values()["dmg"]
 	var penalty = action.penalty
 	if can_damage(dest) != null:
 		damage_scorch(dest, dmg,penalty)
 	else:
 		mine_land(action.piece,dest,dmg,penalty)
-	var origin = action.get_coord()
 
+remotesync func attack(action: Action, dest):
+	var dmg = action.calculate_values()["dmg"]
+	var penalty = action.penalty
 	
+	if can_damage(dest) != null:
+		damage_land(dest, dmg)
+	scorch_land(dest,penalty)
+
+remotesync func move_snipe(action:Action, dest):
+	var dmg = action.calculate_values()["dmg"]
+	var penalty = action.penalty
+	move_piece(action, dest)
+	var origin = dest
+	for dest in get_dist1(origin)[0]:
+		if can_damage(dest) != null:
+			damage_land(dest, dmg)
+		scorch_land(dest,penalty)
+
+remotesync func heal_land(dest, amount):
+	get_tile(dest).heal(amount)
+
+remotesync func heal(action: Action, dest):
+	var params = action.calculate_values()
+	var heal = params["heal_p"]
+	var healland = params["heal_l"]
+
+	if can_damage(dest) != null:
+		can_damage(dest).heal(heal)
+
+	heal_land(dest, healland)
+
+
+
+
+func merge_action_targets(res1, res2):
+	var targets = res1[0]
+	var steps = res1[1]
+	
+	var temp = []
+	for dest in res2[0]:
+		if not dest in targets: temp.append(dest)
+	targets.append_array(temp)
+	
+	var othersteps = res2[1]
+	for dest in temp:
+		steps[dest] = [dest] if othersteps== null else othersteps[dest]
+
+	return [targets,steps]
+
+func compose_action_targets(origin: Vector2, func1:FuncRef, func2:FuncRef):
+	var origins:Array = func1.call_func(origin)[0]
+	var res = origins.duplicate(true)
+	var steps = {}
+	for dest in origins:
+		steps[dest] = func2.call_func(dest)[0]
+	return [res, steps]
+
 func get_knight_move(coord:Vector2, flooronly:=true):
 	var res = []
 	for offset in [Vector2(2,1),Vector2(2,-1), Vector2(-2,-1),Vector2(-2,1), Vector2(2,-1),\
 		Vector2(1,-2),Vector2(1,2), Vector2(-1,-2),Vector2(-1,2)]:
 		var new_coord = coord+offset
 		if in_bounds(new_coord) and !is_occupied(new_coord) and (!flooronly or is_floor(new_coord)):
+			print("inbounds", new_coord, " ", in_bounds(new_coord))
 			res.append(new_coord)
 	return [res,null]
 var knight_move = funcref(self,"get_knight_move")
 func get_rook_move(coord:Vector2, flooronly:=true):
 	var res =[]
+	var queues = {}
 	for dir in [Vector2(1,0),Vector2(0,1),Vector2(-1,0),Vector2(0,-1)]:
-		var i = 1
-		var new_coord = coord+dir*i
-		while in_bounds(new_coord) and !is_occupied(new_coord) and (!flooronly or is_floor(new_coord)):
-			res.append(new_coord)
-			i += 1
-			new_coord = coord+dir*i
-			
-	return [res,null]
+		var queue = []
+		for i in range(1,5):
+			var new_coord = coord+dir*i
+			if in_bounds(new_coord) and !is_occupied(new_coord) and (!flooronly or is_floor(new_coord)):
+				res.append(new_coord)
+				queue.append(new_coord)
+				queues[new_coord] = queue.duplicate(true)
+			else: break			
+	return [res,queues]
 var rook_move = funcref(self,"get_rook_move")
 func get_bishop_move(coord:Vector2, flooronly:=true):
 	var res =[]
+	var queues = {}
 	for dir in [Vector2(1,1),Vector2(-1,1),Vector2(1,-1),Vector2(-1,-1)]:
-		var i = 1
-		var new_coord = coord+dir*i
-		while in_bounds(new_coord) and !is_occupied(new_coord) and (!flooronly or is_floor(new_coord)):
-			res.append(new_coord)
-			i += 1
-			new_coord = coord+dir*i
-	return [res,null]
+		var queue = []
+		for i in range(1,5):
+			var new_coord = coord+dir*i
+			if in_bounds(new_coord) and !is_occupied(new_coord) and (!flooronly or is_floor(new_coord)):
+				res.append(new_coord)
+				queue.append(new_coord)
+				queues[new_coord] = queue.duplicate(true)
+			else: break			
+	return [res,queues]
 var bishop_move = funcref(self,"get_bishop_move")
 func get_queen_move(coord:Vector2):
 	var res = get_rook_move(coord)
-	res.append_array(get_bishop_move(coord))
-	res.append_array(get_knight_move(coord))
-	return res
+	var bres = get_bishop_move(coord)
+	var cres = merge_action_targets(res,bres)
+	return merge_action_targets(cres, get_knight_move(coord))
 var queen_move = funcref(self,"get_queen_move")
 
 func get_dist0(coord:Vector2, flooronly:=false):
@@ -368,3 +475,18 @@ func get_2_adj(coord:Vector2, flooronly:=false):
 var get_2_adj = funcref(self,"get_2_adj")
 
 
+func self_adj(origin:Vector2, flooronly := false):
+	return compose_action_targets(origin, get_dist0, get_adj)
+var self_adj = funcref(self,"self_adj")
+func knight_move_adj(origin:Vector2):
+	return compose_action_targets(origin, knight_move, get_dist1)
+var knight_move_adj = funcref(self,"knight_move_adj")
+func adj_3_tiles(origin:Vector2, flooronly:=false):
+	var ressteps = get_dist1(origin, flooronly); ressteps[1] = {}
+	var perp_vecs = {Vector2(0,1):Vector2(1,0),Vector2(1,0):Vector2(0,1)}
+	for dest in ressteps[0]:
+		var vec = origin-dest
+		var perp = perp_vecs[vec] if vec in perp_vecs else perp_vecs[-vec]
+		ressteps[1][dest] = [dest+perp, dest, dest-perp, dest-vec]
+	return ressteps
+var adj_3_tiles = funcref(self,"adj_3_tiles")

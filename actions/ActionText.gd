@@ -36,7 +36,7 @@ func evaluate(command, variable_names = [], variable_values = []):
 
 func calculate_values() -> Dictionary:
 	var res = {}
-	var names = ["ATK","SPD","MAG","HTH"]
+	var names = ["ATK","SPD","MAG","HLTH"]
 	var vals = [belongs_to.get_attack(), belongs_to.get_speed(), belongs_to.get_magic(), belongs_to.get_max_health()]\
 		if belongs_to!=null else [0,0,0,0]
 	for key in action_text_keywords:

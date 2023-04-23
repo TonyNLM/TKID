@@ -10,6 +10,9 @@ var belongs_to = null
 func setowner(player):
 	belongs_to = player
 
+func heal(amount):
+	belongs_to.heal(amount)
+
 # Called when the node enters the scene tree for the first time.
 func _ready():
 	pass
@@ -19,15 +22,14 @@ func scorch(amount):
 	pass
 func is_scorched()->bool:
 	return false
-func heal(amount):
-	pass
 func reset_chain():
 	pass
 
 func damage(amount):
 	belongs_to.damage(amount)
 
-
+func highlight_off():
+	$highlight.hide()
 func highlight_on(color=null):
 	if color!=null:
 		$highlight.color = color
