@@ -3,17 +3,21 @@
 [ext_resource path="res://common/Store.gd" type="Script" id=2]
 
 [node name="Store" type="Control"]
+mouse_filter = 2
 script = ExtResource( 2 )
 
 [node name="Outline" type="ReferenceRect" parent="."]
 margin_right = 250.0
 margin_bottom = 50.0
+mouse_filter = 2
 editor_only = false
 
 [node name="Restock" type="Timer" parent="."]
-wait_time = 10.0
+wait_time = 30.0
+autostart = true
 
 [node name="HBox" type="HBoxContainer" parent="."]
+mouse_filter = 2
 size_flags_horizontal = 0
 size_flags_vertical = 0
 custom_constants/separation = 35

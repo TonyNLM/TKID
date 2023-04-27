@@ -32,7 +32,7 @@ texture_normal = ExtResource( 1 )
 
 [node name="Line2D" type="Line2D" parent="."]
 visible = false
-points = PoolVector2Array( 25, 0, 35, -10, 100, -10 )
+points = PoolVector2Array( 25, 0, 35, -10, 80, -10 )
 width = 1.0
 default_color = Color( 0.721569, 0.45098, 0.2, 1 )
 
@@ -40,11 +40,13 @@ default_color = Color( 0.721569, 0.45098, 0.2, 1 )
 visible = false
 position = Vector2( 35, -10 )
 scale = Vector2( 0.8, 0.8 )
+z_index = 1
 
 [node name="EffectPage" parent="." instance=ExtResource( 4 )]
 visible = false
 position = Vector2( 35, -10 )
 scale = Vector2( 0.8, 0.8 )
+z_index = 1
 
 [connection signal="mouse_entered" from="Button" to="." method="_on_Button_mouse_entered"]
 [connection signal="mouse_exited" from="Button" to="." method="_on_Button_mouse_exited"]

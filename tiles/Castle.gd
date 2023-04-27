@@ -10,12 +10,9 @@ var belongs_to = null
 func setowner(player):
 	belongs_to = player
 
-func heal(amount):
+func heal(amount,color):
 	belongs_to.heal(amount)
 
-# Called when the node enters the scene tree for the first time.
-func _ready():
-	pass
 
 #overriden parent functions
 func scorch(amount):

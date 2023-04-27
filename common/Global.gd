@@ -23,6 +23,10 @@ var HIGHLIGHT_BLUE:=Color8(0,0,255,150)
 func call_group(group: String, function: String):
 	get_tree().call_group_flags(SceneTree.GROUP_CALL_REALTIME,group,function)
 
+func flip_player(color:String)->String:
+	return "blue" if color=="red" else "red"
+
+
 
 var white_pawn = loadimagetexture("res://player/white_pawn.png")
 var white_knight = loadimagetexture("res://player/white_knight.png")
@@ -46,8 +50,12 @@ func loadimagetexture(path, size = Vector2(24,24)):
 	t.set_size_override(size)
 	return t
 
-func _ready():
-	pass
+func win_game(color):
+	print("Player ",color," wins!")
+
+
+
+
 	
 var action_scene = preload("res://actions/Action.tscn")
 func new_action() -> Action:
@@ -58,7 +66,7 @@ func new_action() -> Action:
 func new_bishop_skill() -> Action:
 	var a := new_action()
 	a.setup(get_map().self_adj, "heal", "Heal", "Heal <heal_p> to Pieces and <heal_l> to land in 8 adj tiles",
-	 {"heal_p":"25+1.5*MAG", "heal_l":"(25+1.5*MAG)/HLTH"})
+	 {"heal_p":"25+0.75*MAG", "heal_l":"(25+0.75*MAG)/HLTH"})
 	a.penalty = 0.2
 	a.base_cooldown = 20
 	a.seticon(healicon)
@@ -82,3 +90,72 @@ func new_rook_skill() -> Action:
 var new_rook_skill = funcref(self,"new_rook_skill")
 
 
+var equipscene = preload("res://common/Equipment.tscn")
+func new_equip() -> Equipment:
+	return equipscene.instance()
+	
+func new_general() -> Equipment:
+	var e := new_equip()
+	e.setstats(20,20,20)
+	return e
+var new_general = funcref(self,"new_general")
+func new_attack() -> Equipment:
+	var e := new_equip()
+	e.setstats(30,10,10)
+	return e
+var new_attack = funcref(self,"new_attack")
+func new_magic() -> Equipment:
+	var e := new_equip()
+	e.setstats(10,30,10)
+	return e
+var new_magic = funcref(self,"new_magic")
+func new_speed() -> Equipment:
+	var e := new_equip()
+	e.setstats(10,10,30)
+	return e
+var new_speed = funcref(self,"new_speed")
+func new_attack1() -> Equipment:
+	var e := new_equip()
+	e.setstats(40,0,0)
+	return e
+var new_attack1 = funcref(self,"new_attack1")
+func new_magic1() -> Equipment:
+	var e := new_equip()
+	e.setstats(0,40,0)
+	return e
+var new_magic1 = funcref(self,"new_magic1")
+func new_speed1() -> Equipment:
+	var e := new_equip()
+	e.setstats(0,0,40)
+	return e
+var new_speed1 = funcref(self,"new_speed1")
+
+var piecescene = preload("res://player/Piece.tscn")
+func new_piece() -> Piece:
+	var p:Piece = piecescene.instance()
+	p._ready()
+	p.base_move.setup(get_map().knight_move, "move_piece")
+	p.base_move.penalty = 0.05
+	p.base_move.connect("action_clicked", self, "action_clicked")
+	p.base_move.seticon(global.booticon)
+	
+	p.base_attack.setup(get_map().get_dist1,"attack_mine","Attack/Mine",
+		"Deal <dmg> Damage /Mine <dmg> to a tile within range 1",{"dmg":"30+0.5*ATK"})
+	p.base_attack.connect("action_clicked",self,"action_clicked")
+	p.base_attack.seticon(global.swordicon)
+
+	for a in p.all_skills:
+		a.setowner()
+	return p
+var new_piece = funcref(self,"new_piece")
+
+
+var action_shop = [new_bishop_skill,new_knight_skill,new_rook_skill]
+var equip_shop = [new_general,new_attack,new_magic,new_speed,new_attack1,new_magic1,new_speed1]
+var piece_shop = [new_piece]
+
+func get_piece_cost(color) -> int:
+	var count = len(get_map().all_pieces[color])
+	count += 1
+	count *= 2
+	return count*count*10

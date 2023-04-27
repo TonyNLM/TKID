@@ -43,6 +43,9 @@ var piece = null
 func get_coord()->Vector2:
 	return piece.coordinate
 
+func get_color()->String:
+	return piece.player.color
+
 func calculate_values()->Dictionary:
 	return $HUD/EffectPage.calculate_values()
 
@@ -67,7 +70,7 @@ remotesync func buy(coord:Vector2):
 	get_parent().remove_child(self)
 	p.add_child(self)
 	setowner()
-	
+	hide()
 	emit_signal("action_clicked",self)
 
 

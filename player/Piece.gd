@@ -41,38 +41,39 @@ var extra_skill: Action = null
 
 var all_skills:Array = []
 
+const higher := 125
+const lower := 75
+
+var color:String
+
 func check_evolve():
 	if type=="Pawn":
 		var atk = get_attack(); var mag = get_magic(); var spd = get_speed(); var old_health = get_max_health()
-		if atk>=125 and mag <=75 and spd<=75:
+		if atk>=higher and mag<=lower and spd<=lower:
 			type = "Rook"
 			$Area2D/Sprite.texture = global.black_rook if player.color == "red" else global.white_rook
 			$BaseMove.get_possible_targets = global.get_map().rook_move
 			$BaseMove.settext("Move (rook)")
-			$StatPage/ColorRect/VBox/Name.text = "Rook"
 			class_skill = global.new_rook_skill()
-		elif mag>=125 and atk <=75 and spd<=75:
+		elif mag>=higher and atk<=lower and spd<=lower:
 			type = "Bishop"
 			$Area2D/Sprite.texture = global.black_bishop if player.color == "red" else global.white_bishop
 			$BaseMove.get_possible_targets = global.get_map().bishop_move
 			$BaseMove.settext("Move (bishop)")
-			$StatPage/ColorRect/VBox/Name.text = "Bishop"
 			class_skill = global.new_bishop_skill()
-		elif spd>=125 and mag <=75 and atk<=75:
+		elif spd>=higher and mag<=lower and atk<=lower:
 			type = "Knight"
 			$Area2D/Sprite.texture = global.black_knight if player.color == "red" else global.white_knight
-			$StatPage/ColorRect/VBox/Name.text = "Knight"
 			class_skill = global.new_knight_skill()
-		elif spd>=250 and mag>=250 and atk>=250:
+		elif spd>=2*higher and mag>=2*higher and atk>=2*higher:
 			type = "Queen"
 			$Area2D/Sprite.texture = global.black_queen if player.color == "red" else global.white_queen
 			$BaseMove.settext("Move (queen)")
-			$StatPage/ColorRect/VBox/Name.text = "Queen"
 		else:
 			$Area2D/Sprite.texture = global.black_pawn if player.color == "red" else global.white_pawn
 		
-		#heal to same percentage
 		if type != "Pawn":
+			#heal to same percentage
 			health = int(float(health)/old_health*get_max_health())
 			update_bar()
 			all_skills.append(class_skill)
@@ -100,16 +101,17 @@ func _ready():
 		a.hide()
 	$StatPage.hide()
 	
-var disable_selection:=false
+
+
 func highlight_off():
 	for a in all_skills:
 		a.hide()
 	$StatPage.hide()
-func highlight_on():
-	if !disable_selection:
+func highlight_on(active:=true):
+	if active:
 		for a in all_skills:
 			a.show()
-		$StatPage.show()
+	$StatPage.show()
 
 func update_bar():
 	$StatPage/ColorRect/VBox/Name.text = str(health)+"/"+str(get_max_health())
@@ -117,7 +119,7 @@ func update_bar():
 	$StatPage/ColorRect/VBox/Grid/MAG2.text = str(get_magic())
 	$StatPage/ColorRect/VBox/Grid/SPD2.text = str(get_speed())
 	
-func heal(amount):
+func heal(amount, color):
 	print("piece healed: ", amount)
 	if health+round(amount)<=get_max_health(): 
 		health += round(amount)
@@ -152,3 +154,35 @@ func gain_gold(amount):
 	print("gain_gold: ", amount)
 	if player != null:
 		player.gain_gold(amount)
+
+func add_equip(e:Equipment):
+	if e.mag>0:
+		var old_health = get_max_health()
+		added_magic += e.mag
+		health = int(float(health)/old_health*get_max_health())
+	added_attack += e.atk
+	added_speed += e.spd
+
+	check_evolve()
+	update_bar()
+
+remotesync func buy(coord):
+	print(color)
+	global.get_map().add_piece_existing(self, coord)
+
+"""
+func _input(event):
+	if event is InputEventMouseButton:
+		if $Area2D.  to_local(event.position):
+			pass
+"""
+
+func _on_Area2D_input_event(viewport, event, shape_idx):
+	print("piece clicked") # Replace with function body.
+
+
+func _on_Area2D_mouse_entered():
+	$StatPage.show() # Replace with function body.
+
+func _on_Area2D_mouse_exited():
+	$StatPage.hide()

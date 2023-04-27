@@ -18,11 +18,11 @@ func setowner(p):
 func update_text():
 	if piece != null:
 		$ColorRect/VBox/Name.text = piece.type
-		$ColorRect/VBox/Grid/ATK2.text = piece.get_attack()
-		$ColorRect/VBox/Grid/MAG2.text = piece.get_magic()
-		$ColorRect/VBox/Grid/SPD2.text = piece.get_speed()
+		$ColorRect/VBox/Grid/ATK2.text = str(piece.get_attack())
+		$ColorRect/VBox/Grid/MAG2.text = str(piece.get_magic())
+		$ColorRect/VBox/Grid/SPD2.text = str(piece.get_speed())
 
 func setstats(atk,mag,spd):
-	$ColorRect/VBox/Grid/ATK2.text = atk
-	$ColorRect/VBox/Grid/MAG2.text = mag
-	$ColorRect/VBox/Grid/SPD2.text = spd
+	$ColorRect/VBox/Grid/ATK2.text = str(atk)
+	$ColorRect/VBox/Grid/MAG2.text = str(mag)
+	$ColorRect/VBox/Grid/SPD2.text = str(spd)

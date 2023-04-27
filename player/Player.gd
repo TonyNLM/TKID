@@ -5,8 +5,8 @@ class_name Player extends Node
 # var a = 2
 # var b = "text"
 
-var health:int = 5000
-var max_health:int = 5000
+var health:int = 2500
+var max_health:int = 2500
 var gold: int = 150
 
 var color:="red"
@@ -20,6 +20,9 @@ func _ready():
 
 func damage(amount):
 	health -= amount
+	if health<=0:
+		global.win_game(global.flip_player(color))
+
 func heal(amount):
 	health+=amount
 	if health>max_health:

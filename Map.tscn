@@ -1,8 +1,9 @@
-[gd_scene load_steps=4 format=2]
+[gd_scene load_steps=5 format=2]
 
 [ext_resource path="res://Map.gd" type="Script" id=1]
 [ext_resource path="res://player/Player.tscn" type="PackedScene" id=2]
 [ext_resource path="res://common/Store.tscn" type="PackedScene" id=3]
+[ext_resource path="res://common/CityHUD.tscn" type="PackedScene" id=4]
 
 [node name="Map" type="Node2D"]
 script = ExtResource( 1 )
@@ -11,7 +12,7 @@ script = ExtResource( 1 )
 position = Vector2( 1155, 1 )
 
 [node name="PlayerBlue" parent="." instance=ExtResource( 2 )]
-position = Vector2( 990, 0 )
+position = Vector2( 1050, 0 )
 
 [node name="ActionStore" parent="." instance=ExtResource( 3 )]
 margin_left = 900.0
@@ -30,3 +31,6 @@ margin_left = 900.0
 margin_top = 600.0
 margin_right = 900.0
 margin_bottom = 600.0
+
+[node name="CityHUD" parent="." instance=ExtResource( 4 )]
+position = Vector2( 800, 0 )

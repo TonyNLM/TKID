@@ -19,6 +19,16 @@ _global_script_classes=[ {
 "language": "GDScript",
 "path": "res://tiles/Castle.gd"
 }, {
+"base": "Tile",
+"class": "City",
+"language": "GDScript",
+"path": "res://tiles/City.gd"
+}, {
+"base": "Node2D",
+"class": "Equipment",
+"language": "GDScript",
+"path": "res://common/Equipment.gd"
+}, {
 "base": "Node2D",
 "class": "Piece",
 "language": "GDScript",
@@ -37,6 +47,8 @@ _global_script_classes=[ {
 _global_script_class_icons={
 "Action": "",
 "Castle": "",
+"City": "",
+"Equipment": "",
 "Piece": "",
 "Player": "",
 "Tile": ""

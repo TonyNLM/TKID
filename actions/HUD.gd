@@ -34,6 +34,6 @@ func enable():
 	$Button.modulate = Color(1,1,1,1)
 
 func setstats(atk, mag, spd):
-	$StatPage.setstatats(atk,mag,spd)
+	$StatPage.setstats(atk,mag,spd)
 
 

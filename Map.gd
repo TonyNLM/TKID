@@ -11,8 +11,7 @@ func set_active_player(color):
 	active_player = players[color]
 
 var all_pieces:={"red":[],"blue":[]}
-
-
+var castle_origins = {"red":0,"blue":0}
 
 var tilescene = preload("res://tiles/Tile.tscn")
 func add_tile(x,y,type):
@@ -24,8 +23,11 @@ func add_tile(x,y,type):
 	get_tile(Vector2(x,y)).connect("fully_scorched",self,"on_tile_scorched")
 	get_tile(Vector2(x,y)).connect("healed",self,"on_tile_healed")
 
+	if type=="Gold":
+		for dest in get_adj(Vector2(x,y))[0]:
+			next_to_mine[dest] = true
+
 var piecescene = preload("res://player/Piece.tscn")
-# new_piece function!!!
 func add_piece(x,y, color="blue"):
 	var p = piecescene.instance()
 	occupied[x][y] = p
@@ -55,6 +57,25 @@ func add_piece(x,y, color="blue"):
 	
 	all_pieces[color].append(p)
 	
+	$PieceStore.update_cost()
+
+func add_piece_existing(p:Piece, coord):
+	occupied[coord.x][coord.y] = p
+	p.get_parent().remove_child(p)
+	add_child(p)
+	
+	p.coordinate = coord
+	p.position = coord*cell_size
+	
+	p.connect("piece_killed",self,"on_piece_killed")
+
+	p.player = players[p.color]
+	p.check_evolve()
+	
+	all_pieces[p.color].append(p)
+	
+	$PieceStore.update_cost()
+
 var castlescene = preload("res://tiles/Castle.tscn")
 func add_castle(x,y,color="blue"):
 	var coord = Vector2(x,y)
@@ -77,6 +98,27 @@ func add_castle(x,y,color="blue"):
 		c.setowner(players[color])
 		
 		get_tile(Vector2(x,y)).connect("tile_clicked",self,"tile_clicked")
+		castle_origins[color] = Vector2(x,y)
+
+var cityscene = preload("res://tiles/City.tscn")
+func add_city(x,y):
+	var coord = Vector2(x,y)
+	if get_tile(coord)==null:
+		var c = cityscene.instance()
+		tiles[x][y] = c
+		tiles[x+1][y] = c
+		tiles[x][y+1] = c
+		tiles[x+1][y+1] = c
+		add_child(c)
+
+		c.coord = coord
+		c.position = coord*cell_size
+		c.cellsize = cell_size
+		c.type = "City"
+		
+		get_tile(coord).connect("tile_clicked",self,"tile_clicked")
+		
+		$CityHUD.setowner(c)
 
 var players:={}
 var id2color := {1:"red",2:"blue"}
@@ -96,6 +138,14 @@ func _ready():
 	$PlayerRed.color = "red"; $PlayerBlue.color = "blue"
 	$PlayerRed.player_name = "Red"; $PlayerBlue.player_name = "Blue"
 	
+	$ActionStore.prob_list = global.action_shop
+	$EquipStore.prob_list = global.equip_shop
+	$PieceStore.prob_list = global.piece_shop
+	$PieceStore.count = 5
+	
+	for s in [$ActionStore,$EquipStore,$PieceStore]:
+		s._ready()
+	
 	#load_map()
 	#demo()
 	
@@ -109,10 +159,10 @@ func demo():
 	add_piece(22,22)
 	
 	get_piece(Vector2(7,7)).magic = 125
-	get_piece(Vector2(7,7)).heal(5000)
+	get_piece(Vector2(7,7)).heal(5000,"")
 	get_piece(Vector2(7,7)).check_evolve()
 	get_piece(Vector2(22,22)).magic = 125
-	get_piece(Vector2(22,22)).heal(5000)
+	get_piece(Vector2(22,22)).heal(5000,"")
 	get_piece(Vector2(22,22)).check_evolve()
 	
 	add_piece(6,7, "red")
@@ -131,7 +181,8 @@ func demo():
 	get_piece(Vector2(22,23)).speed = 125
 	get_piece(Vector2(22,23)).check_evolve()
 
-
+	for p in players.values():
+		p.gold=10000
 
 func load_map(path = "res://map.txt"):
 	var file = File.new()
@@ -154,6 +205,8 @@ func load_map(path = "res://map.txt"):
 					add_castle(x,y,"blue")
 				"Cr":
 					add_castle(x,y,"red")
+				"Ct":
+					add_city(x,y)
 			x+=1
 		y += 1
 	map_size = Vector2(x,y)
@@ -177,12 +230,16 @@ func get_piece(coord:Vector2) -> Piece:
 func can_damage(coord:Vector2):
 	if get_piece(coord)!=null:
 		return get_piece(coord)
+	if get_tile(coord).type=="City":
+		return get_tile(coord)
 	if get_tile(coord).type=="Castle":
 		return get_tile(coord)
+
 	return null
 
+var next_to_mine := {}
 func next_to_mine(coord:Vector2):
-	return false
+	return next_to_mine.get(coord, false)
 
 #called before any tile-specific input events
 func _unhandled_input(event):
@@ -208,22 +265,23 @@ func tile_clicked(coord:Vector2):
 			#not a target selection, highlight only
 			get_tile(coord).highlight_on()
 			if get_piece(coord) != null:
+				get_piece(coord).highlight_on(get_piece(coord).player.color==active_player.color)
 				if get_piece(coord).player.color==active_player.color:
-					get_piece(coord).highlight_on()
 					selected_origin = coord
 		else:
 			#bought from shop successfully
-			selected_origin = coord
-			selected_shopitem.buy(coord)
-			
+			if coord in selected_coordinates:
+				selected_shopitem.buy(coord, active_player.color)
+			selected_shopitem = null
 	else:
 		#carry out action
-		var piece = get_piece(selected_origin)
+		var piece = get_piece(selected_action.get_coord())
 		if piece != null and coord in selected_coordinates:
 			var queue:Array = selected_coordinates[coord]
 			
 			for target in queue:
-				rpc(selected_action.action_func, selected_action, target)
+				#print(selected_action.get_path())
+				rpc(selected_action.action_func, selected_action.get_path(), target)
 				#selected_action.takeeffect(target)
 			scorch_land(selected_origin, selected_action.penalty)
 			
@@ -235,7 +293,7 @@ func tile_clicked(coord:Vector2):
 
 func action_clicked(action: Action):
 	reset_selection()
-	var res = action.get_possible_targets.call_func(selected_origin)
+	var res = action.get_possible_targets.call_func(action.get_coord())
 	var dests:Array = res[0]; var dest_targets = res[1]
 
 	global.call_group("highlightable", "highlight_off")
@@ -247,7 +305,6 @@ func action_clicked(action: Action):
 				get_tile(target).highlight_on(global.HIGHLIGHT_YELLOW)
 		
 		for dest in dests:
-			print(dest)
 			get_tile(dest).highlight_on(global.HIGHLIGHT_BLUE)
 		
 		selected_action = action
@@ -255,12 +312,15 @@ func action_clicked(action: Action):
 func shopitem_clicked(shopitem):
 	#print("shopitem clicked")
 	reset_selection()
-	if active_player.gold < shopitem.cost: return
+	if active_player.gold < shopitem.get_cost(active_player.color): return
 	
 	selected_shopitem = shopitem
 	if shopitem.child is Piece:
-		print("piece")
-	if shopitem.child is Action:
+		shopitem.child.color = active_player.color
+		for dest in get_castle_adj(active_player.color)[0]:
+			selected_coordinates[dest] = null
+			get_tile(dest).highlight_on(global.HIGHLIGHT_BLUE)
+	if shopitem.child is Action or shopitem.child is Equipment:
 		shopitem.child.oneshot = true
 		for p in all_pieces[active_player.color]:
 			selected_coordinates[p.coordinate] = null
@@ -284,7 +344,8 @@ func on_piece_killed(coord:Vector2):
 	p.queue_free()
 
 
-remotesync func move_piece(action:Action, dest):
+remotesync func move_piece(actionpath, dest):
+	var action:Action = get_node(actionpath)
 	var origin = action.get_coord()
 	var penalty = action.penalty
 	
@@ -303,15 +364,18 @@ remotesync func move_piece(action:Action, dest):
 	
 		scorch_land(dest, penalty)
 
-remotesync func damage_land(dest, amount):
+remotesync func damage_land(dest, amount, player):
 	var porc = can_damage(dest)
-	porc.damage(amount)	
+	if porc is City:
+		porc.damage(amount, player)
+	else:
+		porc.damage(amount)	
 	
 remotesync func scorch_land(dest, amount):
 	get_tile(dest).scorch(amount)
 	
-remotesync func damage_scorch(dest, damage, scorch):
-	damage_land(dest, damage)
+remotesync func damage_scorch(dest, damage, scorch, player:String):
+	damage_land(dest, damage, player)
 	scorch_land(dest,scorch)
 
 remotesync func mine_land(piece:Piece, dest, amount, scorch):
@@ -320,42 +384,46 @@ remotesync func mine_land(piece:Piece, dest, amount, scorch):
 		amount = amount*1.3
 	piece.gain_gold(amount)
 
-remotesync func attack_mine(action:Action, dest):
+remotesync func attack_mine(actionpath, dest):
+	var action:Action = get_node(actionpath)	
 	var dmg = action.calculate_values()["dmg"]
 	var penalty = action.penalty
 	if can_damage(dest) != null:
-		damage_scorch(dest, dmg,penalty)
+		damage_scorch(dest, dmg,penalty, action.get_color())
 	else:
 		mine_land(action.piece,dest,dmg,penalty)
 
-remotesync func attack(action: Action, dest):
+remotesync func attack(actionpath, dest):
+	var action:Action = get_node(actionpath)
 	var dmg = action.calculate_values()["dmg"]
 	var penalty = action.penalty
 	
 	if can_damage(dest) != null:
-		damage_land(dest, dmg)
+		damage_land(dest, dmg, action.get_color())
 	scorch_land(dest,penalty)
 
-remotesync func move_snipe(action:Action, dest):
+remotesync func move_snipe(actionpath, dest):
+	var action:Action = get_node(actionpath)
 	var dmg = action.calculate_values()["dmg"]
 	var penalty = action.penalty
-	move_piece(action, dest)
+	move_piece(actionpath, dest)
 	var origin = dest
 	for dest in get_dist1(origin)[0]:
 		if can_damage(dest) != null:
-			damage_land(dest, dmg)
+			damage_land(dest, dmg, action.get_color())
 		scorch_land(dest,penalty)
 
 remotesync func heal_land(dest, amount):
-	get_tile(dest).heal(amount)
+	get_tile(dest).heal_scorch(amount)
 
-remotesync func heal(action: Action, dest):
+remotesync func heal(actionpath, dest):
+	var action:Action = get_node(actionpath)
 	var params = action.calculate_values()
 	var heal = params["heal_p"]
 	var healland = params["heal_l"]
 
 	if can_damage(dest) != null:
-		can_damage(dest).heal(heal)
+		can_damage(dest).heal(heal, action.get_color())
 
 	heal_land(dest, healland)
 
@@ -391,7 +459,6 @@ func get_knight_move(coord:Vector2, flooronly:=true):
 		Vector2(1,-2),Vector2(1,2), Vector2(-1,-2),Vector2(-1,2)]:
 		var new_coord = coord+offset
 		if in_bounds(new_coord) and !is_occupied(new_coord) and (!flooronly or is_floor(new_coord)):
-			print("inbounds", new_coord, " ", in_bounds(new_coord))
 			res.append(new_coord)
 	return [res,null]
 var knight_move = funcref(self,"get_knight_move")
@@ -490,3 +557,13 @@ func adj_3_tiles(origin:Vector2, flooronly:=false):
 		ressteps[1][dest] = [dest+perp, dest, dest-perp, dest-vec]
 	return ressteps
 var adj_3_tiles = funcref(self,"adj_3_tiles")
+
+func get_castle_adj(color):
+	var origin = castle_origins[color]
+	var res = []
+	for offset in[Vector2(0,-1),Vector2(1,-1),Vector2(2,0),Vector2(2,1),Vector2(1,2),Vector2(0,2),Vector2(-1,1),Vector2(-1,0)]:
+		var dest = origin + offset
+		if in_bounds(dest) and is_floor(dest):
+			res.append(dest)
+	return [res,null]
+

@@ -20,7 +20,7 @@ func scorch(amount):
 func is_scorched()->bool:
 	return damage>=1
 
-func heal(amount):
+func heal_scorch(amount):
 	if amount>0: print("tile healed", amount)
 	damage -= amount
 	if damage<0: damage=0
@@ -38,7 +38,7 @@ func endtimeout():
 	$Heal.start()
 
 func _on_Heal_timeout():
-	heal(damage*0.2)
+	heal_scorch(damage*0.2)
 
 # Called when the node enters the scene tree for the first time.
 func _ready():
@@ -87,13 +87,6 @@ func highlight_on(color=null):
 		$LabelBar.set_value(damage)
 	$highlight.visible = true
 
-
-"""
-func _unhandled_input(event):
-	if event is InputEventMouseButton:
-		highlight = true
-		get_tree().set_input_as_handled()
-"""
 
 signal tile_clicked(coordinate)
 
