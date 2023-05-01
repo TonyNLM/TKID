@@ -35,7 +35,7 @@ func buy(coord, color):
 	rpc("buy_item", coord, color)
 
 remotesync func buy_item(coord, color):
-	print("buy, ", color)
+	#print("buy, ", color)
 	if child is Piece:
 		child.color = color
 	global.call_group("highlightable","highlight_off")

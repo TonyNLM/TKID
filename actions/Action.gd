@@ -52,7 +52,7 @@ var action_func: String
 
 signal action_clicked(action)
 func on_Button_clicked():
-	print("action button clicked:", get_coord())
+	#print("action button clicked:", get_coord())
 	emit_signal("action_clicked",self)
 
 func seticon(icon):
@@ -68,7 +68,7 @@ remotesync func buy(coord:Vector2):
 	p.add_child(self)
 	setowner()
 	hide()
-	print("buy action, ",get_parent()," ",coord)
+	#print("buy action, ",get_parent()," ",coord)
 	emit_signal("action_clicked",self)
 
 func hide():

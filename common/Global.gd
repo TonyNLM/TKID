@@ -57,9 +57,9 @@ func loadimagetexture(path, size = Vector2(24,24)):
 	t.set_size_override(size)
 	return t
 
-func win_game(color):
-	print("Player ",color," wins!")
-
+func win_game(color:String):
+	get_map().get_node("Win").text = "Player "+color.to_upper()+" wins!!"
+	get_map().get_node("Win").set("custom_colors/font_color", PLAYER_RED if color=="red" else PLAYER_BLUE)
 
 
 
