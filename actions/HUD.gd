@@ -29,11 +29,16 @@ func _on_Button_mouse_exited():
 func disable():
 	$Button.disabled = true
 	$Button.modulate = Color(0.5,0.5,0.5,1)
+	$ColorRect2.modulate = Color(0.5,0.5,0.5,1)
 func enable():
 	$Button.disabled = false
 	$Button.modulate = Color(1,1,1,1)
+	$ColorRect2.modulate = Color(1,1,1,1)
 
 func setstats(atk, mag, spd):
 	$StatPage.setstats(atk,mag,spd)
 
-
+func hide():
+	if active!=null:active.hide()
+	$Line2D.hide()
+	visible=false

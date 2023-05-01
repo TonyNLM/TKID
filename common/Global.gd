@@ -43,6 +43,13 @@ var black_queen = loadimagetexture("res://player/black_queen.png")
 var swordicon = preload("res://icons/swordicon.tres")
 var booticon = preload("res://icons/booticon.tres")
 var healicon = preload("res://icons/healicon.tres")
+var bowicon = preload("res://icons/bowicon.tres")
+var fireballicon = preload("res://icons/fireballicon.tres")
+var flamethrowicon = preload("res://icons/flamethrowicon.tres")
+var stunicon = preload("res://icons/stunicon.tres")
+var shovelicon = preload("res://icons/shoveicon.tres")
+var grenadeicon = preload("res://icons/grenadeicon.tres")
+var wallicon = preload("res://icons/wallicon.tres")
 
 func loadimagetexture(path, size = Vector2(24,24)):
 	var t = ImageTexture.new()
@@ -70,24 +77,121 @@ func new_bishop_skill() -> Action:
 	a.penalty = 0.2
 	a.base_cooldown = 20
 	a.seticon(healicon)
+	a.cost = 220
 	return a
 var new_bishop_skill = funcref(self, "new_bishop_skill")
 func new_knight_skill() -> Action:
 	var a := new_action()
 	a.setup(get_map().knight_move, "move_snipe", "Quick Attack", "Move and then deal <dmg> damage to adjacent tiles",
-		{"dmg":"10+0.6*ATK"})
+		{"dmg":"0.3*ATK+0.35*SPD"})
 	a.base_cooldown = 20
 	a.seticon(booticon)
+	a.cost = 160
 	return a
 var new_knight_skill = funcref(self,"new_knight_skill")
 func new_rook_skill() -> Action:
 	var a := new_action()
 	a.setup(get_map().adj_3_tiles, "attack", "Slash", "Deal <dmg> Damage to 3 tiles in 1 direction",{"dmg":"50+0.5*ATK"})
 	a.penalty = 0.23
-	a.base_cooldown = 25
+	a.base_cooldown = 15
 	a.seticon(swordicon)
+	a.cost = 180
 	return a
 var new_rook_skill = funcref(self,"new_rook_skill")
+
+#scale with mag and atk, straight3, c300, p0.27
+func new_fireball()-> Action:
+	var a := new_action()
+	a.setup(get_map().get_fireball, "attack", "Fireball", "Deal <dmg> Damage to 9 tiles",{"dmg":"20 + 0.75*MAG + 0.45*ATK"})
+	a.penalty = 0.33
+	a.seticon(fireballicon)
+	a.cost = 250
+	return a
+var new_fireball = funcref(self,"new_fireball")
+
+#c75, 
+func new_basemove()-> Action:
+	var a :=new_action()
+	a.setup(get_map().knight_move, "move_piece")
+	a.penalty = 0.05
+	a.seticon(global.booticon)
+	a.cost = 75
+	return a
+var new_basemove = funcref(self,"new_basemove")
+#c50, p0.05
+func new_sidestep()-> Action:
+	var a :=new_action()
+	a.setup(get_map().get_dist1, "move_piece", "Sidestep", "Move (adjacent)")
+	a.penalty = 0.05
+	a.seticon(global.booticon)
+	a.cost = 50
+	return a
+var new_sidestep = funcref(self,"new_sidestep")
+
+#straight line, c150 p0.27, [0.2,0.16,.128,.1,.08] (twice)
+func new_flamethrow()-> Action:
+	var a := new_action()
+	a.setup(get_map().get_flamethrow, "flamethrow", "Flamethrowing", "Scorch <scorch> to tiles twice, less the further it goes",
+		{"scorch":"0.05 + 0.001*MAG + 0.001*SPD"})
+	a.penalty = 0.29
+	a.seticon(flamethrowicon)
+	a.cost = 170
+	return a
+var new_flamethrow = funcref(self,"new_flamethrow")
+
+#scale with speed and atk, c200, p0.15
+func new_arrow()-> Action:
+	var a := new_action()
+	a.setup(get_map().get_man_4, "attack", "Snipe", "Deal <dmg> to a remote tile",
+		{"dmg":"5 + 0.6*SPD + 0.5*ATK"})
+	a.penalty = .15
+	a.seticon(bowicon)
+	a.cost = 200
+	return a
+var new_arrow = funcref(self,"new_arrow")
+
+#c200, p0.21
+func new_stun()-> Action:
+	var a := new_action()
+	a.setup(get_map().get_adj_piece, "stun", "Stun", "Reset all cooldown of a nearby piece with a <mult> multiplier", 
+		{"mult":"0.5 + 0.0025*MAG + 0.001*SPD"})
+	a.penalty = .21
+	a.seticon(stunicon)
+	a.cost = 200
+	return a
+var new_stun = funcref(self,"new_stun")
+
+#cost 400, p0.5
+func new_mine()-> Action:
+	var a := new_action()
+	a.setup(get_map().self_adj, "mine", "Mine", "Mine <amt> in all adjacent tiles",
+		{"amt":"5 + 0.2*ATK + 0.2*SPD + 0.2*MAG"})
+	a.penalty = .5
+	a.seticon(shovelicon)
+	a.cost = 450
+	return a
+var new_mine = funcref(self,"new_mine")
+
+#c1000, p0.7
+func new_wall()-> Action:
+	var a := new_action()
+	a.setup(get_map().get_adj_floor, "wall", "Wall", "Build a wall")
+	a.penalty = .66
+	a.seticon(wallicon)
+	a.cost = 900
+	return a
+var new_wall = funcref(self,"new_wall")
+
+#c250, p 0.5. destroys wall.
+func new_grenade()-> Action:
+	var a := new_action()
+	a.setup(get_map().get_adj, "grenade", "Grenade", "Deal <dmg> damage to adjacent tiles, destroys walls",
+		{"dmg":"0.5*HLTH + 0.25*ATK"})
+	a.penalty = 0.55
+	a.seticon(grenadeicon)
+	a.cost = 250
+	return a
+var new_grenade = funcref(self,"new_grenade")
 
 
 var equipscene = preload("res://common/Equipment.tscn")
@@ -150,7 +254,7 @@ func new_piece() -> Piece:
 var new_piece = funcref(self,"new_piece")
 
 
-var action_shop = [new_bishop_skill,new_knight_skill,new_rook_skill]
+var action_shop = [new_bishop_skill,new_knight_skill,new_rook_skill,new_arrow,new_basemove,new_fireball,new_flamethrow,new_grenade,new_mine,new_sidestep,new_stun,new_wall]
 var equip_shop = [new_general,new_attack,new_magic,new_speed,new_attack1,new_magic1,new_speed1]
 var piece_shop = [new_piece]
 
@@ -159,3 +263,9 @@ func get_piece_cost(color) -> int:
 	count += 1
 	count *= 2
 	return count*count*10
+
+var random:RandomNumberGenerator = newrandom()
+func newrandom():
+	var r = RandomNumberGenerator.new()
+	r.seed = 0
+	return r

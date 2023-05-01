@@ -29,9 +29,13 @@ func restock():
 		
 
 func _on_Restock_timeout():
-	print("restock")
+	#print("restock")
 	restock()
 
 func update_cost():
 	for i in $HBox.get_children():
 		i.update_cost()
+
+
+func _on_Button_pressed():
+	restock()

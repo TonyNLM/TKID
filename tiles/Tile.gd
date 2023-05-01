@@ -21,11 +21,11 @@ func is_scorched()->bool:
 	return damage>=1
 
 func heal_scorch(amount):
-	if amount>0: print("tile healed", amount)
+	#if amount>0: print("tile healed", amount)
 	damage -= amount
 	if damage<0: damage=0
 	$Floor.modulate = global.WHITE*(1-damage) + global.DAMAGE_RED*damage
-	reset_chain()
+	chain = chain-1
 
 func reset_chain():
 	chain = 0
@@ -38,7 +38,7 @@ func endtimeout():
 	$Heal.start()
 
 func _on_Heal_timeout():
-	heal_scorch(damage*0.2)
+	heal_scorch(damage*0.1)
 
 # Called when the node enters the scene tree for the first time.
 func _ready():
@@ -57,6 +57,8 @@ func setup(x=0,y=0,cs=24,t="Wall"):
 
 func change_type(newtype:String):
 	type = newtype
+	for c in [$Wall, $Floor, $Gold]:
+		c.hide()
 	match type:
 		"Wall":
 			$Wall.visible = true
@@ -66,10 +68,6 @@ func change_type(newtype:String):
 		"Gold":
 			$Gold.visible = true	
 			can_travel = false
-		"City":
-			pass
-		"Outpost":
-			pass
 
 var can_travel:bool = true
 
@@ -79,6 +77,7 @@ func highlight_off():
 	$highlight.visible = false
 	$LabelBar.hide()
 func highlight_on(color=null):
+	if type!="Floor":return
 	if color!=null:
 		$highlight.color = color
 	else:
@@ -89,10 +88,6 @@ func highlight_on(color=null):
 
 
 signal tile_clicked(coordinate)
-
 func _on_Tile_input_event(viewport, event, shape_idx):
 	if (event is InputEventMouseButton && event.pressed && event.button_index==BUTTON_LEFT):
 		emit_signal("tile_clicked", coord)
-
-
-

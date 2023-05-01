@@ -16,4 +16,3 @@ custom_fonts/font = ExtResource( 2 )
 text = "Deal 1.5*ATK damage to tiles within range 1"
 align = 1
 autowrap = true
-clip_text = true

@@ -6,15 +6,28 @@ class_name City extends Tile
 # var b = "text"
 
 var control := {"red":0,"blue":0}
-var win_threshold := 1500
-var gain_thresholds = [500,1000]
+var win_threshold := 2500
+var gain_thresholds = 500
 
+var tiers = {"red":0, "blue":0}
+signal control_changed(tiers)
+func check():
+	var newtiers:={}
+	for p in control:
+		newtiers[p] = control[p] % gain_thresholds
+	var eq = true
+	for p in control:
+		if tiers[p]!=newtiers[p]:
+			eq = false
+	tiers = newtiers
+	if !eq: emit_signal("control_changed", tiers)	
 
-func heal(amount, color:String):
+func heal(amount:int, color:String):
 	var otherplayer=global.flip_player(color)
 	control[otherplayer] -= amount
 	if control[otherplayer]<0: control[otherplayer] = 0
-	print("control of player: ",global.flip_player(color)," decreased by ",amount)
+	#print("control of player: ",global.flip_player(color)," decreased by ",amount)
+	check()
 
 #overriden parent functions
 func scorch(amount):
@@ -27,11 +40,12 @@ func heal_scorch(amount):
 	pass
 
 
-func damage(amount, color):
+func damage(amount:int, color):
 	control[color] += amount
 	print("control of player: ",color," increased by ",amount)
 	if control[color]>win_threshold:
 		global.win_game(color)
+	check()
 
 func highlight_off():
 	$highlight.hide()

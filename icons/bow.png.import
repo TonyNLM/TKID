@@ -1,0 +1,13 @@
+[remap]
+
+importer="image"
+type="Image"
+path="res://.import/bow.png-32e34b5bb1a701cda8cccbb2722b1067.image"
+
+[deps]
+
+source_file="res://icons/bow.png"
+dest_files=[ "res://.import/bow.png-32e34b5bb1a701cda8cccbb2722b1067.image" ]
+
+[params]
+

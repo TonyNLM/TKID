@@ -1,0 +1,13 @@
+[remap]
+
+importer="image"
+type="Image"
+path="res://.import/grenade.png-5e812e2c8ac1b6db9b5aeecaaaf106dd.image"
+
+[deps]
+
+source_file="res://icons/grenade.png"
+dest_files=[ "res://.import/grenade.png-5e812e2c8ac1b6db9b5aeecaaaf106dd.image" ]
+
+[params]
+

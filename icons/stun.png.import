@@ -1,0 +1,13 @@
+[remap]
+
+importer="image"
+type="Image"
+path="res://.import/stun.png-e3fdc96a8b9a56bd01fdfd52965131b9.image"
+
+[deps]
+
+source_file="res://icons/stun.png"
+dest_files=[ "res://.import/stun.png-e3fdc96a8b9a56bd01fdfd52965131b9.image" ]
+
+[params]
+

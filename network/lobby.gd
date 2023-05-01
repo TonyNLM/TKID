@@ -11,11 +11,18 @@ func _ready():
 
 
 	$Connect/Name.text = "Sir Knight"
+	
+	$Connect/Option.add_item("Prim")
+	$Connect/Option.add_item("Noise")
 
 
 func _on_host_pressed():
 	if $Connect/Name.text == "":
 		$Connect/ErrorLabel.text = "Invalid name"
+		return
+
+	if float($Connect/Seed2.text)==0:
+		$Connect/ErrorLabel.text = "Invalid probability"
 		return
 
 	$Connect.hide()
@@ -83,5 +90,5 @@ func refresh_lobby():
 
 
 func _on_start_pressed():
-	gamestate.begin_game()
+	gamestate.begin_game($Connect/Seed.text, $Connect/Option.text, float($Connect/Seed2.text))
 

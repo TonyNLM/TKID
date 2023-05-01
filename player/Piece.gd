@@ -1,6 +1,6 @@
 class_name Piece extends Node2D
 
-var player:Player = null
+var player:Player
 
 var health: int
 var attack: int
@@ -68,6 +68,7 @@ func check_evolve():
 		elif spd>=2*higher and mag>=2*higher and atk>=2*higher:
 			type = "Queen"
 			$Area2D/Sprite.texture = global.black_queen if player.color == "red" else global.white_queen
+			$BaseMove.get_possible_targets = global.get_map().queen_move
 			$BaseMove.settext("Move (queen)")
 		else:
 			$Area2D/Sprite.texture = global.black_pawn if player.color == "red" else global.white_pawn
@@ -81,13 +82,15 @@ func check_evolve():
 			class_skill.setowner()
 			class_skill.position = Vector2(-30,0)
 			class_skill.hide()
+			input_map[KEY_A] = class_skill
 	
 func _ready():
-	#create piece, do all random here
-	
 	attack = 50
 	speed = 50
 	magic = 50
+	
+	randomize_stats()
+	
 	health = get_max_health()
 	
 	update_bar()
@@ -101,6 +104,7 @@ func _ready():
 		a.hide()
 	$StatPage.hide()
 	
+	input_map = {KEY_W:base_attack, KEY_D: base_move, KEY_A:class_skill}
 
 
 func highlight_off():
@@ -120,22 +124,25 @@ func update_bar():
 	$StatPage/ColorRect/VBox/Grid/SPD2.text = str(get_speed())
 	
 func heal(amount, color):
-	print("piece healed: ", amount)
+	#print("piece healed: ", amount)
 	if health+round(amount)<=get_max_health(): 
 		health += round(amount)
 	else: health = get_max_health()
 	update_bar()
+	
 func damage(amount):
 	print("piece damaged: ",amount)
 	health -= round(amount)
 	update_bar()
 	if health<=0: kill()
+	$HealTimer.start()
 
 signal piece_killed(coord)
 
 func kill():
 	if player!=null:
-		pass #gain gold back
+		var g = global.get_piece_cost(player.color) + added_gold
+		player.gain_gold(g*0.6)
 	emit_signal("piece_killed", coordinate)
 
 var scorch_chain:=0
@@ -155,13 +162,16 @@ func gain_gold(amount):
 	if player != null:
 		player.gain_gold(amount)
 
+var added_gold:=0
 func add_equip(e:Equipment):
-	if e.mag>0:
+	if e.mag!=0:
 		var old_health = get_max_health()
 		added_magic += e.mag
 		health = int(float(health)/old_health*get_max_health())
 	added_attack += e.atk
 	added_speed += e.spd
+
+	added_gold = e.cost
 
 	check_evolve()
 	update_bar()
@@ -170,12 +180,15 @@ remotesync func buy(coord):
 	print(color)
 	global.get_map().add_piece_existing(self, coord)
 
-"""
+var input_map:Dictionary
 func _input(event):
-	if event is InputEventMouseButton:
-		if $Area2D.  to_local(event.position):
-			pass
-"""
+	if event is InputEventKey:
+		if event.scancode in input_map:
+			var action = input_map[event.scancode]
+			if action != null and action.visible:
+				action.emit_signal("action_clicked",action)
+				get_tree().set_input_as_handled()
+		
 
 func _on_Area2D_input_event(viewport, event, shape_idx):
 	print("piece clicked") # Replace with function body.
@@ -186,3 +199,42 @@ func _on_Area2D_mouse_entered():
 
 func _on_Area2D_mouse_exited():
 	$StatPage.hide()
+
+
+func sum(arr):
+	var s := 0; for x in arr: s += x; return s
+
+func randomize_stats():
+	var sum = attack+magic+speed
+	var delta:int = round(global.random.randfn(0, 3))
+
+	#equally distribute
+	var deltas = [delta/3,delta/3,delta/3]
+	var remaining = delta-sum(deltas)
+	for i in range(abs(remaining)):
+		deltas[i] += remaining/int(sign(remaining))
+	
+	deltas.shuffle()
+	
+	#more rand steps the lower the delta is
+	var steps = floor((4-delta)/2.0)
+	if delta<0: steps += 1 
+	
+	for n in range(steps):
+		deltas.shuffle()
+		
+		var s:int = sign(deltas[0])
+		
+		if s==0: s = - (sign(sum(deltas)))
+		if s==0: s = (randi()%2)*2-1
+		
+		deltas[0] += s
+		deltas[1] -= s
+	
+	deltas.shuffle()
+	#print(delta, deltas)
+	attack+=deltas[0]; magic+=deltas[1]; speed+=deltas[2]
+
+func _on_HealTimer_timeout():
+	heal(get_max_health()*0.025, "")
+

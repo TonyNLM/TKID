@@ -1,23 +1,19 @@
 class_name Action extends Node2D
 
-#array of vec2s, each defining an offset
-var possible_targets = [Vector2(1,0),Vector2(0,1),Vector2(-1,0),Vector2(0,-1)]
-
 var penalty: float = 0.17
 
-
 var base_cooldown: float = 15.0
-func enter_cooldown(speed:int, mult:float=1.0):
-	var ah = (speed-50)/100.0
+func enter_cooldown(speed:int, mult:=1.0):
+	#print("enter_cooldown", speed, " ", mult)
+	var ah = (speed-50)/125.0
 	var speedmult = 1.0/ (ah+1)
 	if speed < 30: 
-		speedmult = 1.25
+		speedmult = 1.2
 	$CD.start(mult * base_cooldown * speedmult)
 	$HUD.disable()
 	
 func _on_CD_timeout():
 	$HUD.enable()
-
 
 func _ready():
 	$HUD/Button.connect("pressed",self,"on_Button_clicked")
@@ -56,7 +52,7 @@ var action_func: String
 
 signal action_clicked(action)
 func on_Button_clicked():
-	#print("action button clicked:")
+	print("action button clicked:", get_coord())
 	emit_signal("action_clicked",self)
 
 func seticon(icon):
@@ -64,6 +60,7 @@ func seticon(icon):
 
 
 var oneshot := false
+var cost:int
 
 remotesync func buy(coord:Vector2):
 	var p = global.get_map().get_piece(coord)
@@ -71,10 +68,13 @@ remotesync func buy(coord:Vector2):
 	p.add_child(self)
 	setowner()
 	hide()
+	print("buy action, ",get_parent()," ",coord)
 	emit_signal("action_clicked",self)
 
+func hide():
+	$HUD.hide()
 
-
-
+func show():
+	$HUD.show()
 
 

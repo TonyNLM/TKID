@@ -5,8 +5,8 @@ class_name Player extends Node
 # var a = 2
 # var b = "text"
 
-var health:int = 2500
-var max_health:int = 2500
+var health:int = 2000
+var max_health:int = 2000
 var gold: int = 150
 
 var color:="red"
@@ -28,7 +28,8 @@ func heal(amount):
 	if health>max_health:
 		health = max_health
 	
-func gain_gold(amount):
+func gain_gold(amount:int):
 	gold += amount
-func lose_gold(amount):
+func lose_gold(amount:int):
 	gold -= amount
+	if gold<0: gold=0

@@ -82,13 +82,32 @@ func unregister_player(id):
 	emit_signal("player_list_changed")
 
 
-remote func pre_start_game(mapseed):
+remote func pre_start_game(mapseed,method,floorprob):
 	# Change scene.
 	var mapscene = load("res://Map.tscn").instance()
 	get_tree().get_root().add_child(mapscene)
 
-	#TODO: load generate and load map
-	global.get_map().load_map("res://map"+mapseed+".txt")
+	var path = "res://map"+mapseed+".txt"
+
+	var f := File.new()
+	if not f.file_exists(path):
+		var generate = load("res://random/generate.gd")
+		var map = generate.Map.new(mapseed, Vector2(30,30), 0.5)
+		var generator = generate.Simplex.new() if method=="Noise" else generate.Prim.new()
+	
+		map.generate(generator)
+
+		map.add_goldmines()	
+		map.transform_map()
+		map.bishop_pathways()
+		map.make_symmetric()
+		map.add_castle()
+		map.add_city()
+		map.add_piece()
+		
+		map.to_file()
+
+	global.get_map().load_map(path)
 	#DEBUG
 	global.get_map().demo()
 
@@ -147,16 +166,13 @@ func get_player_name():
 	return player_name
 
 
-func begin_game():
+func begin_game(mapseed, method, floorprob):
 	assert(get_tree().is_network_server())
 
-	#TODO: generate map and save in file
-	var mapseed = ""
-
 	for p in players:
-		rpc_id(p, "pre_start_game", mapseed)
+		rpc_id(p, "pre_start_game", mapseed, method, floorprob)
 
-	pre_start_game(mapseed)
+	pre_start_game(mapseed, method, floorprob)
 
 
 func end_game():
