@@ -183,6 +183,10 @@ func demo():
 	get_piece(Vector2(22,23)).speed = 125
 	get_piece(Vector2(22,23)).check_evolve()
 """
+
+
+
+	
 	for p in players.values():
 		p.gold=10000
 		
@@ -257,7 +261,9 @@ func _unhandled_input(event):
 		global.call_group("highlightable", "highlight_off")
 	if event is InputEventKey:
 		if event.scancode == KEY_ESCAPE:
-				get_tree().quit(0)
+			get_tree().quit(0)
+		if event.scancode == KEY_T:
+			$Label.visible = !$Label.visible
 	
 var selected_coordinates: Dictionary
 var selected_action:Action = null
@@ -306,9 +312,6 @@ func action_clicked(action: Action):
 	reset_selection()
 	var res = action.get_possible_targets.call_func(action.get_coord())
 	var dests:Array = res[0]; var dest_targets = res[1]
-
-	print("action clicked")
-	print("dest ", dests)
 
 	global.call_group("highlightable", "highlight_off")
 
@@ -417,7 +420,7 @@ remotesync func attack_mine(actionpath, dest):
 	else:
 		mine_land(action.piece,dest,dmg,penalty)
 
-remotesync func attack(actionpath, dest):
+remotesync func attack(actionpath:String, dest:Vector2):
 	var action:Action = get_node(actionpath)
 	var dmg = action.calculate_values()["dmg"]
 	var penalty = action.penalty

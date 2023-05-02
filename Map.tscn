@@ -1,4 +1,4 @@
-[gd_scene load_steps=7 format=2]
+[gd_scene load_steps=8 format=2]
 
 [ext_resource path="res://Map.gd" type="Script" id=1]
 [ext_resource path="res://player/Player.tscn" type="PackedScene" id=2]
@@ -9,6 +9,11 @@
 [sub_resource type="DynamicFont" id=1]
 size = 90
 use_mipmaps = true
+use_filter = true
+font_data = ExtResource( 5 )
+
+[sub_resource type="DynamicFont" id=2]
+size = 20
 use_filter = true
 font_data = ExtResource( 5 )
 
@@ -47,11 +52,36 @@ margin_bottom = 600.0
 position = Vector2( 800, 0 )
 
 [node name="Win" type="Label" parent="."]
+visible = false
 margin_left = 403.0
 margin_top = 276.0
 margin_right = 922.0
 margin_bottom = 368.0
 custom_fonts/font = SubResource( 1 )
 text = "Player Red Wins!!"
+
+[node name="Label" type="Label" parent="."]
+margin_left = 901.0
+margin_top = 168.0
+margin_right = 1150.0
+margin_bottom = 357.0
+custom_fonts/font = SubResource( 2 )
+text = "Click to  select pieces
+Click the buy button above shop items, then one available target
+
+Piece control:
+Press \"D\" for movement
+Press \"W\" for Attack/ Mine
+Press \"A\" for class skill (if any)"
+autowrap = true
+
+[node name="T" type="Label" parent="."]
+margin_left = 901.0
+margin_top = 143.0
+margin_right = 1211.0
+margin_bottom = 170.0
+custom_fonts/font = SubResource( 2 )
+text = "Press \"T\" to toggle help"
+autowrap = true
 
 [connection signal="timeout" from="GainGold" to="." method="_on_GainGold_timeout"]

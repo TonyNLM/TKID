@@ -51,6 +51,9 @@ var shovelicon = preload("res://icons/shoveicon.tres")
 var grenadeicon = preload("res://icons/grenadeicon.tres")
 var wallicon = preload("res://icons/wallicon.tres")
 
+var bookicon = preload("res://icons/bookicon.tres")
+var armoricon = preload("res://icons/armoricon.tres")
+
 func loadimagetexture(path, size = Vector2(24,24)):
 	var t = ImageTexture.new()
 	t.create_from_image(load(path))
@@ -60,14 +63,11 @@ func loadimagetexture(path, size = Vector2(24,24)):
 func win_game(color:String):
 	get_map().get_node("Win").text = "Player "+color.to_upper()+" wins!!"
 	get_map().get_node("Win").set("custom_colors/font_color", PLAYER_RED if color=="red" else PLAYER_BLUE)
-
-
-
+	get_map().get_node("Win").show()
 	
 var action_scene = preload("res://actions/Action.tscn")
 func new_action() -> Action:
 	var a = action_scene.instance()
-	#a.connect("action_clicked",get_map(),"action_clicked")
 	return a
 	
 func new_bishop_skill() -> Action:
@@ -185,9 +185,9 @@ var new_wall = funcref(self,"new_wall")
 #c250, p 0.5. destroys wall.
 func new_grenade()-> Action:
 	var a := new_action()
-	a.setup(get_map().get_adj, "grenade", "Grenade", "Deal <dmg> damage to adjacent tiles, destroys walls",
-		{"dmg":"0.5*HLTH + 0.25*ATK"})
-	a.penalty = 0.55
+	a.setup(get_map().get_dist1, "grenade", "Grenade", "Deal <dmg> damage to adjacent tiles, destroys walls",
+		{"dmg":"0.5*HLTH + 0.5*ATK"})
+	a.penalty = 0.47
 	a.seticon(grenadeicon)
 	a.cost = 250
 	return a
@@ -201,36 +201,46 @@ func new_equip() -> Equipment:
 func new_general() -> Equipment:
 	var e := new_equip()
 	e.setstats(20,20,20)
+	e.seticon(armoricon)
 	return e
 var new_general = funcref(self,"new_general")
 func new_attack() -> Equipment:
 	var e := new_equip()
 	e.setstats(30,10,10)
+	e.seticon(swordicon)
 	return e
 var new_attack = funcref(self,"new_attack")
 func new_magic() -> Equipment:
 	var e := new_equip()
 	e.setstats(10,30,10)
+	e.seticon(bookicon)
 	return e
 var new_magic = funcref(self,"new_magic")
 func new_speed() -> Equipment:
 	var e := new_equip()
 	e.setstats(10,10,30)
+	e.seticon(booticon)
 	return e
 var new_speed = funcref(self,"new_speed")
 func new_attack1() -> Equipment:
 	var e := new_equip()
 	e.setstats(40,0,0)
+	e.seticon(swordicon)
+	e.setcolor(DAMAGE_RED)
 	return e
 var new_attack1 = funcref(self,"new_attack1")
 func new_magic1() -> Equipment:
 	var e := new_equip()
 	e.setstats(0,40,0)
+	e.seticon(bookicon)
+	e.setcolor(DAMAGE_RED)
 	return e
 var new_magic1 = funcref(self,"new_magic1")
 func new_speed1() -> Equipment:
 	var e := new_equip()
 	e.setstats(0,0,40)
+	e.seticon(booticon)
+	e.setcolor(DAMAGE_RED)
 	return e
 var new_speed1 = funcref(self,"new_speed1")
 

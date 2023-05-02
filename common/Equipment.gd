@@ -58,3 +58,10 @@ remotesync func buy(coord:Vector2):
 	var p = global.get_map().get_piece(coord)
 	p.add_equip(self)
 	queue_free()
+
+func seticon(icon):
+	$HUD/Button.texture_normal = icon
+	
+func setcolor(color):
+	$HUD/ColorRect2.color = color
+

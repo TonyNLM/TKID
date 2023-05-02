@@ -70,6 +70,21 @@ func check_evolve():
 			$Area2D/Sprite.texture = global.black_queen if player.color == "red" else global.white_queen
 			$BaseMove.get_possible_targets = global.get_map().queen_move
 			$BaseMove.settext("Move (queen)")
+			class_skill = global.new_rook_skill()
+			extra_move = global.new_knight_skill()
+			extra_skill = global.new_bishop_skill()
+			add_child(extra_move)
+			add_child(extra_skill)
+			extra_move.setowner()
+			extra_move.position = Vector2(30,-30)
+			extra_move.hide()
+			extra_skill.setowner()
+			extra_skill.position = Vector2(-30,-30)
+			extra_skill.hide()
+			all_skills.append(extra_skill)
+			all_skills.append(extra_move)
+			input_map[KEY_E] = extra_move
+			input_map[KEY_Q] = extra_skill
 		else:
 			$Area2D/Sprite.texture = global.black_pawn if player.color == "red" else global.white_pawn
 		
@@ -110,11 +125,14 @@ func _ready():
 func highlight_off():
 	for a in all_skills:
 		a.hide()
+		a.visible = false
 	$StatPage.hide()
+	
 func highlight_on(active:=true):
 	if active:
 		for a in all_skills:
 			a.show()
+			a.visible = true
 	$StatPage.show()
 
 func update_bar():
@@ -177,7 +195,7 @@ func add_equip(e:Equipment):
 	update_bar()
 
 remotesync func buy(coord):
-	print(color)
+	#print(color)
 	global.get_map().add_piece_existing(self, coord)
 
 var input_map:Dictionary
@@ -191,8 +209,8 @@ func _input(event):
 		
 
 func _on_Area2D_input_event(viewport, event, shape_idx):
-	print("piece clicked") # Replace with function body.
-
+	#print("piece clicked") # Replace with function body.
+	pass
 
 func _on_Area2D_mouse_entered():
 	$StatPage.show() # Replace with function body.

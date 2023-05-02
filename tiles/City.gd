@@ -26,7 +26,7 @@ func heal(amount:int, color:String):
 	var otherplayer=global.flip_player(color)
 	control[otherplayer] -= amount
 	if control[otherplayer]<0: control[otherplayer] = 0
-	#print("control of player: ",global.flip_player(color)," decreased by ",amount)
+	print("control of player: ",global.flip_player(color)," decreased by ",amount)
 	check()
 
 #overriden parent functions

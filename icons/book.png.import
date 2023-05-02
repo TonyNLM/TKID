@@ -1,0 +1,13 @@
+[remap]
+
+importer="image"
+type="Image"
+path="res://.import/book.png-af92b0cf6705f12f586c477c88853fd7.image"
+
+[deps]
+
+source_file="res://icons/book.png"
+dest_files=[ "res://.import/book.png-af92b0cf6705f12f586c477c88853fd7.image" ]
+
+[params]
+

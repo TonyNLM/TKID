@@ -1,11 +1,63 @@
 tool
 extends EditorScript
 
-var img
+class Perlin:
+	var gradientmap = {}
+	var map:=[]
+	
+	func interpolate(a0, a1, w):
+		if (0.0 > w): return a0;
+		if (1.0 < w): return a1;
+		return (a1 - a0) * ((w * (w * 6.0 - 15.0) + 10.0) * w * w * w) + a0;
+	
+	func randomGradient(ix:int,iy:int):
+		var coord = Vector2(ix,iy)
+		if gradientmap.get(coord)==null:
+			gradientmap[coord] = Vector2(randf(),randf()).normalized()
+		return gradientmap[coord]
 
+	func dotGridGradient(ix:int,iy:int,x:float,y:float):
+		var g = randomGradient(ix,iy)
+		return g.dot(Vector2(x,y)-Vector2(ix,iy))
+
+	#perlin noise, taken from wiki
+	func perlin(x:float,y:float):
+		var x0 := int(floor(x)); var x1 := x0+1
+		var y0 := int(floor(y)); var y1 := y0+1
+		
+		var sx = x-x0; var sy = y-y0
+
+		var n0 = dotGridGradient(x0,y0,x,y)
+		var n1 = dotGridGradient(x1,y0,x,y)
+		
+		var ix0 = interpolate(n0, n1, sx)
+
+		n0 = dotGridGradient(x0, y1, x, y);
+		n1 = dotGridGradient(x1, y1, x, y);
+		var ix1 = interpolate(n0, n1, sx);
+
+		return interpolate(ix0,ix1,sy)
+
+	func generate(seedstr:String, size:Vector2, floorprob:float)->Array:
+		seed(seedstr.hash())
+		
+		var generated = []
+		generated.resize(size.x)
+		for x in range(size.x):
+			generated[x] = []
+			generated[x].resize(size.y)
+
+		for x in range(size.x):
+			for y in range(size.y):
+				generated[x][y] = perlin(x/size.x,y/size.y)
+				#print(perlin(x,y))
+		return generated
+
+
+"""
 func _run():
 	var map = Map.new("testing")
-	var simplex = Simplex.new(3,5,0.5)
+	var simplex = Simplex.new()
 
 	map.generate(simplex)
 	map.to_file("testing")
@@ -52,6 +104,14 @@ func _run():
 	
 	map.to_file("prim_cast")
 	
+"""
+
+func _run():
+	var map = Map.new("testing")
+	var perlin = Perlin.new()
+
+	map.generate(perlin)
+	map.to_file("perlin")
 
 class Simplex:
 	var noise
@@ -123,7 +183,7 @@ class Map:
 		return res
 
 	func add_castle():
-		var origin = Vector2( randi()%(int(mapsize.x/2)-6)+3 , randi()%(int(mapsize.y)-9)+4 )
+		var origin = Vector2( randi()%(int(mapsize.x/2)-8)+3 , randi()%(int(mapsize.y)-9)+4 )
 
 		for offset in [Vector2(0,0), Vector2(1,0),Vector2(1,1),Vector2(0,1)]: 
 			var new = origin+offset
@@ -222,16 +282,16 @@ class Map:
 					if get_tile(coord) == "G":
 						set_tiles(coord, adj12, "F", 0.95)
 
+	func sum(arr): 
+		var s=0.0; 
+		for x in arr: s+=x; return s
+
 
 
 	#prob from percentage, inspired by sigmoid function
 	func get_prob(percentage:float):
 		var i=.8;var j=1; var k=12; var l=5; var m=0.05
 		return (i/ (j+exp(-(k*percentage - l)))) + m
-
-	func sum(arr): 
-		var s=0.0; 
-		for x in arr: s+=x; return s
 
 	func flip_tile(coord:Vector2):
 		var flipmap = {"W":"F","F":"W"}
@@ -248,7 +308,6 @@ class Map:
 			else: prob *= 0.5
 
 		if randf() < prob:
-			#print(type, " ",prob, " ", flipmap[type])
 			setcoord(coord, flipmap[type])
 
 	func transform_map():
@@ -314,6 +373,7 @@ class Prim:
 	func setwall(coord:Vector2, prob:float): if randf()<prob: generated[coord.x][coord.y] = 1
 	
 	func generate(seedstr:String, size:Vector2, floorprob:float)->Array:
+		#setup stuff
 		seed(seedstr.hash())
 		
 		generated.resize(size.x)
@@ -323,19 +383,20 @@ class Prim:
 		
 		mapsize= size
 
-		var x = randi()%int(size.x); var y = randi()%int(size.y); var c=Vector2(x,y)
+		#make a random cell, add its neighbors to wall list
+		var c=Vector2(randi()%int(size.x),randi()%int(size.y))
 		setfloor(c,1)
 		var visited = [c]
 		walls = get_adj(c)
 		
-		var i = 0
 		while len(walls) > 0:
-			var w:Vector2 = walls.pop_at(randi()%len(walls)) #random wall
+			var w:Vector2 = walls.pop_at(randi()%len(walls)) #random wall in list
 			visited.append(w)
 			
 			var neighbors = get_adj(w)
 			var percentage = count(neighbors)/len(neighbors)
 			
+			#higher probability the more walls are present
 			if randf()<get_prob(percentage):
 				if w.x==0 or w.y==0:
 					setfloor(w, 0.2) #less floors near edge
@@ -343,6 +404,7 @@ class Prim:
 					setfloor(w, floorprob)
 				cells.append(w)
 
+				#add neighbors to wall list
 				for n in (neighbors):
 					if not (n in walls or n in visited): walls.append(n)
 					
