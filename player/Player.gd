@@ -7,7 +7,7 @@ class_name Player extends Node
 
 var health:int = 2000
 var max_health:int = 2000
-var gold: int = 150
+var gold: int = 250
 
 var color:="red"
 var player_name:= "red"

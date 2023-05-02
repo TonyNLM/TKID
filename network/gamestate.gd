@@ -109,7 +109,7 @@ remote func pre_start_game(mapseed,method,floorprob):
 
 	global.get_map().load_map(path)
 	#DEBUG
-	#global.get_map().demo()
+	global.get_map().demo()
 
 	get_tree().get_root().get_node("Lobby").hide()
 	

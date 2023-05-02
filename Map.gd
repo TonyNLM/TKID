@@ -304,7 +304,7 @@ func tile_clicked(coord:Vector2):
 
 			if selected_action.oneshot: selected_action.queue_free()
 			#DEBUG: no cd
-			#selected_action.enter_cooldown(piece.speed)
+			selected_action.enter_cooldown(piece.speed)
 			
 		reset_selection()
 
