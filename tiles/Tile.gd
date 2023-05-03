@@ -77,13 +77,13 @@ func highlight_off():
 	$highlight.visible = false
 	$LabelBar.hide()
 func highlight_on(color=null):
-	if type!="Floor":return
 	if color!=null:
 		$highlight.color = color
 	else:
 		$highlight.color = global.HIGHLIGHT_YELLOW
-		$LabelBar.show()
-		$LabelBar.set_value(damage)
+		if type=="Floor":
+			$LabelBar.show()
+			$LabelBar.set_value(damage)
 	$highlight.visible = true
 
 

@@ -49,7 +49,7 @@ class Perlin:
 
 		for x in range(size.x):
 			for y in range(size.y):
-				generated[x][y] = perlin(x/size.x,y/size.y)
+				generated[x][y] = perlin(x/45.0,y/45.0)
 				#print(perlin(x,y))
 		return generated
 
@@ -111,7 +111,7 @@ func _run():
 	var perlin = Perlin.new()
 
 	map.generate(perlin)
-	map.to_file("perlin")
+	map.to_file("perlin2")
 
 class Simplex:
 	var noise
@@ -183,7 +183,7 @@ class Map:
 		return res
 
 	func add_castle():
-		var origin = Vector2( randi()%(int(mapsize.x/2)-8)+3 , randi()%(int(mapsize.y)-9)+4 )
+		var origin = Vector2( randi()%(int(mapsize.x/2)-9)+3 , randi()%(int(mapsize.y)-9)+4 )
 
 		for offset in [Vector2(0,0), Vector2(1,0),Vector2(1,1),Vector2(0,1)]: 
 			var new = origin+offset
@@ -305,7 +305,7 @@ class Map:
 		var prob = get_prob(percentage); 
 		if type =="F":
 			if percentage<0.85: prob = 0
-			else: prob *= 0.5
+			else: prob *= 0.33
 
 		if randf() < prob:
 			setcoord(coord, flipmap[type])
@@ -331,8 +331,7 @@ class Map:
 		var num = 2 if randf()<0.9 else 3
 		for n in num:
 			while true:
-				var x = randi()%int(mapsize.x); var y = 0
-				if mapsize.x-1-x>0: y=randi()%int(mapsize.x-1-x)
+				var x = randi()%int(mapsize.x/2); var y = randi()%int(int(mapsize.y/2)-1)
 				
 				var coord=Vector2(x,y)
 				if get_tile(coord)=="F":

@@ -19,8 +19,8 @@ var count := 7
 
 var shopitem_scene = preload("res://common/ShopItem.tscn")
 func restock():
-	for i in $HBox.get_children(): 
-		i.queue_free()
+	for i in $HBox.get_children():
+		$HBox.remove_child(i)
 		
 	for n in range(count):
 		var new_item = shopitem_scene.instance()

@@ -250,12 +250,10 @@ func new_piece() -> Piece:
 	p._ready()
 	p.base_move.setup(get_map().knight_move, "move_piece")
 	p.base_move.penalty = 0.05
-	p.base_move.connect("action_clicked", self, "action_clicked")
 	p.base_move.seticon(global.booticon)
 	
 	p.base_attack.setup(get_map().get_dist1,"attack_mine","Attack/Mine",
 		"Deal <dmg> Damage /Mine <dmg> to a tile within range 1",{"dmg":"30+0.5*ATK"})
-	p.base_attack.connect("action_clicked",self,"action_clicked")
 	p.base_attack.seticon(global.swordicon)
 
 	for a in p.all_skills:
@@ -265,7 +263,7 @@ var new_piece = funcref(self,"new_piece")
 
 
 var action_shop = [new_bishop_skill,new_knight_skill,new_rook_skill,new_arrow,new_basemove,new_fireball,new_flamethrow,new_grenade,new_mine,new_sidestep,new_stun,new_wall]
-var equip_shop = [new_general,new_attack,new_magic,new_speed,new_attack1,new_magic1,new_speed1]
+var equip_shop = [new_general,new_attack,new_magic,new_speed,new_attack,new_magic,new_speed,new_attack1,new_magic1,new_speed1]
 var piece_shop = [new_piece]
 
 func get_piece_cost(color) -> int:

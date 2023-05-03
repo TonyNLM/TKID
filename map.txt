@@ -1,4 +1,4 @@
-G,F,W,W,F,F,W,W,W,W,W,G,F,W,G,G,W,F,G,W,W,W,W,W,F,F,W,W,F,G
+﻿G,F,W,W,F,F,W,W,W,W,W,G,F,W,G,G,W,F,G,W,W,W,W,W,F,F,W,W,F,G
 F,F,F,F,F,F,F,F,F,W,W,F,F,W,F,F,W,F,F,W,W,F,F,F,F,F,F,F,F,F
 W,F,W,F,F,F,F,F,F,F,W,F,F,F,F,F,F,F,F,W,F,F,F,F,F,F,F,W,F,W
 W,F,F,F,F,F,F,F,F,F,F,F,F,F,F,F,F,F,F,F,F,F,F,F,F,F,F,F,F,W
@@ -16,8 +16,8 @@ F,F,F,F,G,F,F,F,F,F,W,W,F,F,Ct,Ct,F,F,W,W,F,F,F,W,F,F,F,F,F,F
 F,F,F,F,F,F,W,F,F,F,W,W,F,F,Ct,Ct,F,F,W,W,F,F,F,F,F,G,F,F,F,F
 W,F,F,F,F,W,F,F,F,F,F,F,F,F,F,F,F,F,F,F,F,F,F,W,F,F,F,F,F,W
 W,F,F,F,F,F,F,F,F,F,F,F,F,F,F,F,F,F,F,F,F,F,F,F,W,F,F,F,F,W
-W,F,F,F,F,F,F,F,F,F,F,W,F,F,W,W,F,F,W,F,F,F,F,F,F,F,F,F,F,W
-W,F,F,F,F,F,F,F,F,F,F,F,F,F,F,F,F,F,F,F,F,F,F,F,F,F,F,F,F,W
+W,F,F,F,F,F,F,F,F,F,F,W,F,F,W,W,F,F,W,F,F,F,F,B,F,F,F,F,F,W
+W,F,F,F,F,F,F,F,F,F,F,F,F,F,F,F,F,F,F,F,F,F,F,F,B,F,F,F,F,W
 W,F,F,F,F,F,F,F,F,F,F,F,F,F,F,F,F,F,F,F,F,F,F,F,F,F,F,F,F,W
 W,F,F,F,F,F,F,F,G,F,F,F,F,W,F,F,W,F,F,F,F,F,F,F,F,F,F,F,F,W
 F,F,F,F,F,F,F,F,F,F,F,F,F,F,F,F,F,F,F,F,F,F,F,F,F,F,F,F,F,F

@@ -52,10 +52,11 @@ func setstats(a,m,s):
 
 var oneshot:=true
 
-var cost := 100
+var cost := 125
 
 remotesync func buy(coord:Vector2):
 	var p = global.get_map().get_piece(coord)
+	print("piece ",p," buys ",self)
 	p.add_equip(self)
 	queue_free()
 

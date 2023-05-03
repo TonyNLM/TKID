@@ -299,7 +299,6 @@ func tile_clicked(coord:Vector2):
 			
 			rpc("scorch_land", selected_action.get_coord(), selected_action.penalty)
 			for target in queue:
-				#print(selected_action.get_path())
 				rpc(selected_action.action_func, selected_action.get_path(), target)
 
 			if selected_action.oneshot: selected_action.queue_free()
